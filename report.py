@@ -139,11 +139,26 @@ def tech_score(d: pd.DataFrame, sup_row) -> tuple[int, dict]:
 
 
 # ---------------- fundamentals ----------------
-def fund_score(symbol: str) -> tuple[int, dict]:
-    try:
-        info = yf.Ticker(f"{symbol}.NS").info or {}
-    except Exception:
+_INFO = {}
+
+
+def get_info(symbol: str) -> dict:
+    if symbol not in _INFO:
+        import time
         info = {}
+        for attempt in range(3):
+            try:
+                info = yf.Ticker(f"{symbol}.NS").info or {}
+                break
+            except Exception:
+                time.sleep(2 + attempt * 3)
+        _INFO[symbol] = info
+        time.sleep(0.15)
+    return _INFO[symbol]
+
+
+def fund_score(symbol: str) -> tuple[int, dict]:
+    info = get_info(symbol)
     pts, why = 0, {}
 
     def g(k):
@@ -203,11 +218,12 @@ def label(score):
 
 # ---------------- build ----------------
 def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None,
-          extra=None) -> pd.DataFrame:
+          extra=None, watch=None) -> pd.DataFrame:
     mem = mem or {}
+    watch = list(watch or [])
     screened = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
     scr_set = set(screened)
-    syms = list(dict.fromkeys(screened + list(extra or [])))
+    syms = list(dict.fromkeys(screened + watch + list(extra or [])))
     sup_map = {row["Symbol"]: row for row in sup.to_dict("records")} if len(sup) else {}
     names = dict(zip(cons["Symbol"], cons["Company"]))
     seg = dict(zip(cons["Symbol"], cons["Segment"]))
@@ -227,7 +243,11 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
         ret = returns_block(d)
         score = t + f
         rows.append({
-            "Symbol": s, "Company": names.get(s, s), "Segment": seg.get(s, ""),
+            "Symbol": s,
+            "Company": (names.get(s) if isinstance(names.get(s), str) and names.get(s) else
+                        get_info(s).get("longName") or get_info(s).get("shortName") or s),
+            "Segment": seg.get(s) or "Other NSE",
+            "_watch": s in watch,
             "LTP": round(float(d["Close"].iloc[-1]), 2),
             "Score": score, "Fundamental": f, "Technical": t, "Label": label(score),
             "Support": srow.get("Support") if srow else None,
@@ -269,8 +289,8 @@ def _chip(lbl):
 
 def html(df: pd.DataFrame, now: dt.datetime) -> str:
     def srow(r):
-        return f"""<tr>
-<td data-v="{r.Company}"><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+        return f"""<tr data-s="{r.Symbol}" data-q="{(r.Company + ' ' + r.Symbol).lower()}">
+<td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}" title="Add to My stocks">☆</button><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
 <td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
 <td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td><td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
@@ -300,13 +320,25 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
         tab_btns.append(f'<button class="tab{" on" if i == 0 else ""}" data-t="{tid}">{tab} <small>{len(sub)}</small></button>')
         body = "".join(srow(r) for _, r in sub.iterrows()) or '<tr><td colspan="14">No stocks from this index on today\'s list.</td></tr>'
         tab_panels.append(f'<div class="panel" id="{tid}"{"" if i == 0 else " hidden"}><p class="swipe">{note} · tap a column title to sort · ← swipe sideways</p><table>{head}<tbody>{body}</tbody></table></div>')
+    n = len(VIEW_TABS)
+    watch_syms = list(df[df["_watch"]]["Symbol"])
+    tab_btns.insert(0, f'<button class="tab mytab" data-t="tmy">⭐ My stocks <small id="mycount">{len(watch_syms)}</small></button>')
+    tab_panels.append(f'<div class="panel" id="tmy" hidden><p class="swipe">Your watchlist · tap ☆/⭐ on any stock to add or remove · '
+                      f'stars are saved on this device</p><table>{head}<tbody></tbody></table>'
+                      f'<p class="empty" id="myempty" hidden>No stocks yet. Search above and tap ☆ to add.</p></div>')
+    tab_panels.append(f'<div class="panel" id="tsearch" hidden><p class="swipe" id="snote">Search results</p><table>{head}<tbody></tbody></table></div>')
+    univ = "".join(srow(r) for _, r in df.iterrows())
+    tab_panels.append(f'<table id="univ" hidden><tbody>{univ}</tbody></table>')
     sort_opts = "".join(f'<option value="{v}">{t}</option>' for v, t in [
         ("2:d", "Score: high → low"), ("2:a", "Score: low → high"),
         ("13:a", "Biggest fall from 52W high"), ("9:a", "1M: biggest fall"), ("9:d", "1M: biggest gain"),
         ("8:a", "1W: biggest fall"), ("7:a", "1D: biggest fall"), ("7:d", "1D: biggest gain"),
         ("10:a", "3M: biggest fall"), ("12:a", "1Y: biggest fall"), ("12:d", "1Y: biggest gain"),
         ("4:d", "Fundamentals: high → low"), ("5:d", "Technicals: high → low"), ("0:a", "Company A → Z")])
-    summary_html = (f'<div class="tabs">{"".join(tab_btns)}</div>'
+    import json as _json
+    summary_html = (f'<script>const WATCH_DEFAULT={_json.dumps(watch_syms)};</script>'
+                    f'<div class="search"><input id="q" type="search" placeholder="🔍 Search any stock (name or symbol)…" autocomplete="off"></div>'
+                    f'<div class="tabs">{"".join(tab_btns)}</div>'
                     f'<div class="sortbar">Sort by <select id="sortsel">{sort_opts}</select></div>'
                     f'<div class="box">{"".join(tab_panels)}</div>')
 
@@ -387,6 +419,10 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .tab{{border:0;background:#e6e9ef;color:#14213d;padding:8px 12px;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}}
 .tab small{{opacity:.7;font-weight:500}} .tab.on{{background:#14213d;color:#fff}}
 .sortbar{{margin:8px 2px 0;font-size:13px;color:#444}}
+.search input{{width:100%;box-sizing:border-box;font-size:16px;padding:11px 14px;border:1px solid #ccd;border-radius:22px;margin-top:14px;background:#fff}}
+.star{{border:0;background:none;font-size:17px;line-height:1;padding:0 6px 0 0;cursor:pointer;color:#b58900;vertical-align:-1px}}
+.star.on{{color:#e0a800}} .tab.mytab{{background:#fff4cc;color:#7a5d00}} .tab.mytab.on{{background:#e0a800;color:#fff}}
+.empty{{font-size:13px;color:#666;padding:10px}}
 .sortbar select{{font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid #ccc;background:#fff;margin-left:4px}}
 .sortbar+.box{{margin-top:8px}}
 th.s{{cursor:pointer;user-select:none}} th.s:hover{{background:#e6e9ef}}
@@ -428,15 +464,35 @@ function sortTable(tbl,c,dir){{
  [...tbl.tHead.rows[0].cells].forEach(h=>h.classList.remove('asc','desc'));
  th.classList.add(dir==='a'?'asc':'desc');
 }}
-function sortAll(c,dir){{document.querySelectorAll('.panel table').forEach(t=>{{if(t.tBodies[0].rows[0]?.cells.length>1)sortTable(t,c,dir)}});}}
+let SORT=[2,'d'];
+function sortAll(c,dir){{SORT=[c,dir];document.querySelectorAll('.panel table').forEach(t=>{{if(t.tBodies[0].rows[0]?.cells.length>1)sortTable(t,c,dir)}});}}
+const UNIV=[...document.querySelectorAll('#univ tbody tr')];
+function getWatch(){{let add=[],rem=[];try{{add=JSON.parse(localStorage.getItem('w_add')||'[]');rem=JSON.parse(localStorage.getItem('w_rem')||'[]')}}catch(e){{}}
+ return new Set([...WATCH_DEFAULT.filter(s=>!rem.includes(s)),...add]);}}
+function setWatch(sym,on){{let add=[],rem=[];try{{add=JSON.parse(localStorage.getItem('w_add')||'[]');rem=JSON.parse(localStorage.getItem('w_rem')||'[]')}}catch(e){{}}
+ add=add.filter(x=>x!==sym);rem=rem.filter(x=>x!==sym);
+ if(on&&!WATCH_DEFAULT.includes(sym))add.push(sym); if(!on&&WATCH_DEFAULT.includes(sym))rem.push(sym);
+ try{{localStorage.setItem('w_add',JSON.stringify(add));localStorage.setItem('w_rem',JSON.stringify(rem))}}catch(e){{}}
+ renderMy(); paintStars();}}
+function fill(id,rows){{const tb=document.querySelector('#'+id+' tbody');tb.innerHTML='';rows.forEach(r=>tb.appendChild(r.cloneNode(true)));
+ const t=tb.closest('table'); if(tb.rows.length)sortTable(t,SORT[0],SORT[1]); bindStars(tb);}}
+function renderMy(){{const w=getWatch();const rows=UNIV.filter(r=>w.has(r.dataset.s));fill('tmy',rows);
+ document.getElementById('mycount').textContent=rows.length;document.getElementById('myempty').hidden=rows.length>0;}}
+function paintStars(){{const w=getWatch();document.querySelectorAll('.star').forEach(b=>{{const on=w.has(b.dataset.s);b.textContent=on?'⭐':'☆';b.classList.toggle('on',on);}});}}
+function bindStars(root){{root.querySelectorAll('.star').forEach(b=>b.onclick=e=>{{e.preventDefault();setWatch(b.dataset.s,!getWatch().has(b.dataset.s));}});}}
+function show(id){{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===id));
+ document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==id);}}
+let lastTab='t0';
+document.getElementById('q').oninput=e=>{{const q=e.target.value.trim().toLowerCase();
+ if(!q){{show(lastTab);return;}}
+ const rows=UNIV.filter(r=>r.dataset.q.includes(q)).slice(0,50); fill('tsearch',rows);
+ document.getElementById('snote').textContent=rows.length?`${{rows.length}} match(es) for "${{q}}" · tap ☆ to add to My stocks`:`No match for "${{q}}". Only the Top 250 + your watchlist are in this report.`;
+ show('tsearch'); paintStars();}};
 document.querySelectorAll('th.s').forEach(th=>th.onclick=()=>{{
  const dir=th.classList.contains('desc')?'a':th.classList.contains('asc')?'d':(th.dataset.k==='n'?'d':'a');
  sortAll(+th.dataset.c,dir); document.getElementById('sortsel').value='';
 }});
 document.getElementById('sortsel').onchange=e=>{{const [c,d]=e.target.value.split(':'); sortAll(+c,d);}};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{{
- document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
- document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==b.dataset.t);
-}});
-sortAll(2,'d');
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{{lastTab=b.dataset.t;document.getElementById('q').value='';show(b.dataset.t);}});
+bindStars(document);renderMy();sortAll(2,'d');paintStars();
 </script></body></html>"""

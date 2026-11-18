@@ -1,0 +1,2 @@
+# My stocks - one NSE symbol per line (add more anytime)
+KTKBANK   # Karnataka Bank

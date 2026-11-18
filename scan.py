@@ -347,7 +347,13 @@ def main():
 
     cons = get_constituents()
     print(f"{len(cons)} constituents")
-    data = download(cons)
+    wl_file = Path(__file__).parent / "watchlist.txt"
+    watch = [l.split("#")[0].strip().upper() for l in wl_file.read_text().splitlines()] if wl_file.exists() else []
+    watch = [w for w in watch if w]
+    extra_rows = pd.DataFrame([{"Symbol": w, "Company": "", "Segment": "My stocks"}
+                               for w in watch if w not in set(cons["Symbol"])])
+    dl_cons = pd.concat([cons, extra_rows], ignore_index=True) if len(extra_rows) else cons
+    data = download(dl_cons)
     df = scan(cons, data)
     sup = support_scan(cons, data)
     print(f"{len(sup)} stocks touching support")
@@ -377,8 +383,8 @@ def main():
 
     # Client screening report (score + returns)
     mem = report.index_membership(cons)
-    nifty50 = [s for s, ix in mem.items() if "Nifty 50" in ix and s in set(cons["Symbol"])]
-    rep = report.build(data, cons, df, sup, mem, extra=nifty50)
+    rep_cons = dl_cons
+    rep = report.build(data, rep_cons, df, sup, mem, extra=list(cons["Symbol"]), watch=watch)
     if not rep.empty:
         page = report.html(rep, NOW)
         pw = os.getenv("REPORT_PASSWORD", "")
