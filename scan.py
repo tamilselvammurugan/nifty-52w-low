@@ -380,12 +380,18 @@ def main():
     nifty50 = [s for s, ix in mem.items() if "Nifty 50" in ix and s in set(cons["Symbol"])]
     rep = report.build(data, cons, df, sup, mem, extra=nifty50)
     if not rep.empty:
-        (DOCS / "report.html").write_text(report.html(rep, NOW), encoding="utf-8")
-        (HIST / f"{NOW:%Y-%m-%d}-report.html").write_text(report.html(rep, NOW), encoding="utf-8")
-        r_out = rep.drop(columns=[c for c in rep.columns if c.startswith("_")]).copy()
-        for col in ["1D", "1W", "1M", "3M", "6M", "1Y", "From 52W high"]:
-            r_out[col] = (r_out[col] * 100).round(2)
-        r_out.to_csv(DOCS / "report.csv", index=False)
+        page = report.html(rep, NOW)
+        pw = os.getenv("REPORT_PASSWORD", "")
+        if pw:
+            import protect
+            page = protect.encrypt_page(page, pw)
+        else:
+            print("WARNING: REPORT_PASSWORD not set - report.html is NOT protected")
+        (DOCS / "report.html").write_text(page, encoding="utf-8")
+        (HIST / f"{NOW:%Y-%m-%d}-report.html").write_text(page, encoding="utf-8")
+        old_csv = DOCS / "report.csv"   # full scores would bypass the password, so not published
+        if old_csv.exists():
+            old_csv.unlink()
     print(f"Report: {len(rep)} stocks scored")
 
     send_telegram(df, new_syms, os.getenv("PAGE_URL", ""), sup, rep)
