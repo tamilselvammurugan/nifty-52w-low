@@ -332,6 +332,15 @@ def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFr
                 lines.append(f"• {r.Symbol} {r.Score}/100 | 1M {r['1M']*100:+.1f}% | from 52W high {r['From 52W high']*100:+.1f}%")
         else:
             lines.append("\n⭐ No stock scored 70+ today")
+    if rep is not None and not rep.empty and "_targets" in rep:
+        hits = []
+        for _, r in rep[rep["_watch"]].iterrows():
+            for i, tg in enumerate(r["_targets"] or []):
+                if tg and r["_dlow"] <= tg:
+                    hits.append(f"• {r.Symbol} Target {i+1} ₹{tg:,.2f} reached (low ₹{r['_dlow']:,.2f}, now ₹{r.LTP:,.2f})")
+        if hits:
+            lines.append("\n🎯 My stocks – targets reached:")
+            lines.extend(hits)
     if page_url:
         lines.append(f"\n{page_url}")
         lines.append(f"📄 Report: {page_url}report.html")
@@ -360,8 +369,21 @@ def main():
     univ = pd.concat([cons, n500[~n500["Symbol"].isin(cons["Symbol"])]], ignore_index=True)
 
     wl_file = Path(__file__).parent / "watchlist.txt"
-    watch = [l.split("#")[0].strip().upper() for l in wl_file.read_text().splitlines()] if wl_file.exists() else []
-    watch = [w for w in watch if w]
+    watch, targets = [], {}
+    for line in (wl_file.read_text().splitlines() if wl_file.exists() else []):
+        parts = line.split("#")[0].split()
+        if not parts:
+            continue
+        sym = parts[0].upper()
+        watch.append(sym)
+        tg = []
+        for x in parts[1:4]:
+            try:
+                tg.append(float(x.replace(",", "")))
+            except ValueError:
+                pass
+        if tg:
+            targets[sym] = tg
     extra_rows = pd.DataFrame([{"Symbol": w, "Company": "", "Segment": "My stocks"}
                                for w in watch if w not in set(univ["Symbol"])])
     dl_cons = pd.concat([univ, extra_rows], ignore_index=True) if len(extra_rows) else univ
@@ -398,7 +420,7 @@ def main():
     df_u = scan(univ, data)            # 52W-low + support across Nifty 500 for the report
     sup_u = support_scan(univ, data)
     rep = report.build(data, dl_cons, df_u, sup_u, mem, extra=list(univ["Symbol"]), watch=watch,
-                       core=set(cons["Symbol"]))
+                       core=set(cons["Symbol"]), targets=targets)
     if not rep.empty:
         page = report.html(rep, NOW)
         pw = os.getenv("REPORT_PASSWORD", "")
