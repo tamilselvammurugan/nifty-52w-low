@@ -30,10 +30,7 @@ INDEX_LISTS = {
 TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
 INDEX_NAMES = TABS[1:]
 # tab: (label, index filter, include all constituents?)
-VIEW_TABS = [("All", None, False), ("Nifty 50 · Top by score", "Nifty 50", False),
-             ("Nifty 50 · All 50", "Nifty 50", True), ("Nifty Next 50", "Nifty Next 50", False),
-             ("Nifty 100", "Nifty 100", False), ("Midcap 150", "Midcap 150", False),
-             ("Nifty 200", "Nifty 200", False)]
+MAIN_TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
 
 
 def index_membership(cons: pd.DataFrame) -> dict:
@@ -304,23 +301,30 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     head = "<thead><tr>" + "".join(
         f'<th class="{"n " if k == "n" and c not in ("Label",) else ""}{"s" if k else ""}" data-k="{k}" data-c="{i}">{c}<i></i></th>'
         for i, (c, k) in enumerate(cols)) + "</tr></thead>"
-    tab_btns, tab_panels = [], []
+    tab_btns, tab_panels, sub_bars = [], [], []
     scr = df[df["_screened"]]
-    for i, (tab, idx, all_members) in enumerate(VIEW_TABS):
-        if idx is None:
-            sub = scr
-        elif all_members:
-            sub = df[df["_idx"].apply(lambda x: idx in x)]
-        else:
-            sub = scr[scr["_idx"].apply(lambda x: idx in x)].head(50)
+
+    def panel(pid, sub, note, hidden=True, empty="No stocks here today."):
+        body = "".join(srow(r) for _, r in sub.iterrows()) or f'<tr><td colspan="14">{empty}</td></tr>'
+        return (f'<div class="panel" id="{pid}"{" hidden" if hidden else ""}><p class="swipe">{note} · tap a column '
+                f'title to sort · ← swipe sideways</p><table>{head}<tbody>{body}</tbody></table></div>')
+
+    for i, tab in enumerate(MAIN_TABS):
         tid = "t" + str(i)
-        note = (f"All {len(sub)} screened stocks" if idx is None else
-                f"All {len(sub)} {idx} stocks, scored (incl. ones not at support)" if all_members else
-                f"Top {len(sub)} {idx} stocks by score (max 50)")
-        tab_btns.append(f'<button class="tab{" on" if i == 0 else ""}" data-t="{tid}">{tab} <small>{len(sub)}</small></button>')
-        body = "".join(srow(r) for _, r in sub.iterrows()) or '<tr><td colspan="14">No stocks from this index on today\'s list.</td></tr>'
-        tab_panels.append(f'<div class="panel" id="{tid}"{"" if i == 0 else " hidden"}><p class="swipe">{note} · tap a column title to sort · ← swipe sideways</p><table>{head}<tbody>{body}</tbody></table></div>')
-    n = len(VIEW_TABS)
+        if tab == "All":
+            tab_btns.append(f'<button class="tab on" data-t="{tid}">All <small>{len(scr)}</small></button>')
+            tab_panels.append(panel(tid, scr, f"All {len(scr)} stocks at support or near 52-week low", hidden=False))
+            continue
+        members = df[df["_idx"].apply(lambda x, t=tab: t in x)]
+        top = scr[scr["_idx"].apply(lambda x, t=tab: t in x)].head(50)
+        tab_btns.append(f'<button class="tab" data-t="{tid}a" data-sub="{tid}">{tab} <small>{len(members)}</small></button>')
+        sub_bars.append(f'<div class="subtabs" id="{tid}" hidden>'
+                        f'<button class="stab on" data-t="{tid}a">{tab} <small>{len(members)}</small></button>'
+                        f'<button class="stab" data-t="{tid}b">Top by score <small>{len(top)}</small></button></div>')
+        tab_panels.append(panel(f"{tid}a", members, f"All {len(members)} {tab} stocks, scored"))
+        tab_panels.append(panel(f"{tid}b", top, f"Top {len(top)} {tab} stocks at support / near 52W low, by score (max 50)",
+                                empty=f"No {tab} stock is at support or near its 52-week low today."))
+
     watch_syms = list(df[df["_watch"]]["Symbol"])
     tab_btns.insert(0, f'<button class="tab mytab" data-t="tmy">⭐ My stocks <small id="mycount">{len(watch_syms)}</small></button>')
     tab_panels.append(f'<div class="panel" id="tmy" hidden><p class="swipe">Your watchlist · tap ☆/⭐ on any stock to add or remove · '
@@ -338,7 +342,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     import json as _json
     summary_html = (f'<script>const WATCH_DEFAULT={_json.dumps(watch_syms)};</script>'
                     f'<div class="search"><input id="q" type="search" placeholder="🔍 Search any stock (name or symbol)…" autocomplete="off"></div>'
-                    f'<div class="tabs">{"".join(tab_btns)}</div>'
+                    f'<div class="tabs">{"".join(tab_btns)}</div>{"".join(sub_bars)}'
                     f'<div class="sortbar">Sort by <select id="sortsel">{sort_opts}</select></div>'
                     f'<div class="box">{"".join(tab_panels)}</div>')
 
@@ -417,7 +421,11 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .swipe{{font-size:11px;color:#888;margin:2px 4px 6px}}
 .tabs{{display:flex;gap:6px;overflow-x:auto;margin:14px 0 0;padding-bottom:2px;-webkit-overflow-scrolling:touch}}
 .tab{{border:0;background:#e6e9ef;color:#14213d;padding:8px 12px;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}}
-.tab small{{opacity:.7;font-weight:500}} .tab.on{{background:#14213d;color:#fff}}
+.tab small,.stab small{{opacity:.7;font-weight:500}}
+.subtabs{{display:flex;gap:4px;margin:8px 0 0;background:#e6e9ef;border-radius:10px;padding:3px;width:max-content;max-width:100%}}
+.stab{{border:0;background:none;color:#14213d;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}}
+.stab.on{{background:#fff;box-shadow:0 1px 3px #0002}}
+[hidden]{{display:none!important}} .tab.on{{background:#14213d;color:#fff}}
 .sortbar{{margin:8px 2px 0;font-size:13px;color:#444}}
 .search input{{width:100%;box-sizing:border-box;font-size:16px;padding:11px 14px;border:1px solid #ccd;border-radius:22px;margin-top:14px;background:#fff}}
 .star{{border:0;background:none;font-size:17px;line-height:1;padding:0 6px 0 0;cursor:pointer;color:#b58900;vertical-align:-1px}}
@@ -480,7 +488,11 @@ function renderMy(){{const w=getWatch();const rows=UNIV.filter(r=>w.has(r.datase
  document.getElementById('mycount').textContent=rows.length;document.getElementById('myempty').hidden=rows.length>0;}}
 function paintStars(){{const w=getWatch();document.querySelectorAll('.star').forEach(b=>{{const on=w.has(b.dataset.s);b.textContent=on?'⭐':'☆';b.classList.toggle('on',on);}});}}
 function bindStars(root){{root.querySelectorAll('.star').forEach(b=>b.onclick=e=>{{e.preventDefault();setWatch(b.dataset.s,!getWatch().has(b.dataset.s));}});}}
-function show(id){{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===id));
+function show(id){{
+ const sub=id.match(/^(t\\d+)[ab]$/); const main=sub?sub[1]:null;
+ document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',(x.dataset.sub||x.dataset.t)===(main||id)));
+ document.querySelectorAll('.subtabs').forEach(b=>b.hidden=b.id!==main);
+ document.querySelectorAll('.stab').forEach(x=>x.classList.toggle('on',x.dataset.t===id));
  document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==id);}}
 let lastTab='t0';
 document.getElementById('q').oninput=e=>{{const q=e.target.value.trim().toLowerCase();
@@ -493,6 +505,6 @@ document.querySelectorAll('th.s').forEach(th=>th.onclick=()=>{{
  sortAll(+th.dataset.c,dir); document.getElementById('sortsel').value='';
 }});
 document.getElementById('sortsel').onchange=e=>{{const [c,d]=e.target.value.split(':'); sortAll(+c,d);}};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{{lastTab=b.dataset.t;document.getElementById('q').value='';show(b.dataset.t);}});
+document.querySelectorAll('.tab,.stab').forEach(b=>b.onclick=()=>{{lastTab=b.dataset.t;document.getElementById('q').value='';show(b.dataset.t);}});
 bindStars(document);renderMy();sortAll(2,'d');paintStars();
 </script></body></html>"""
