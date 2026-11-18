@@ -23,6 +23,8 @@ import pandas as pd
 import requests
 import yfinance as yf
 
+import report
+
 THRESHOLD = float(os.getenv("THRESHOLD_PCT", "5")) / 100  # within 5% of 52W low
 DOCS = Path(__file__).parent / "docs"
 HIST = DOCS / "history"
@@ -293,14 +295,15 @@ def build_html(df: pd.DataFrame, new_syms: set, sup: pd.DataFrame) -> str:
 <th class="n">% above low</th><th>Low date</th><th class="n">Day %</th><th class="n">Below 52W high</th></tr>
 {''.join(trs)}
 </table></div>
-<p class="meta"><a href="latest.csv">Download CSV</a></p>
+<p class="meta"><a href="latest.csv">Download CSV</a> · <b><a href="report.html">📄 Client screening report (scores + returns)</a></b></p>
 <h1 style="margin-top:28px">Touching support today — {len(sup)} stocks</h1>
 <div class="meta">🟢 Holding = touched support and closed above it · 🔴 Broke today = closed more than 1% below support</div>
 {support_table(sup)}
 </body></html>"""
 
 
-def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFrame):
+def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFrame,
+                  rep: pd.DataFrame = None):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat = os.getenv("TELEGRAM_CHAT_ID")
     if not token or not chat:
@@ -321,8 +324,18 @@ def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFr
             lines.append("🟢 Holding: " + ", ".join(hold.Symbol.head(15)))
         if len(broke):
             lines.append("🔴 Broke: " + ", ".join(broke.Symbol.head(15)))
+    if rep is not None and not rep.empty:
+        top = rep[rep.Label == "Strong setup"].head(5)
+        if len(top):
+            lines.append("\n⭐ Strong setups (score 70+):")
+            for _, r in top.iterrows():
+                lines.append(f"• {r.Symbol} {r.Score}/100 | 1M {r['1M']*100:+.1f}% | from 52W high {r['From 52W high']*100:+.1f}%")
+        else:
+            lines.append("\n⭐ No stock scored 70+ today")
     if page_url:
         lines.append(f"\n{page_url}")
+        lines.append(f"📄 Report: {page_url}report.html")
+    lines.append("\nScreening info only, not investment advice.")
     requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
                   data={"chat_id": chat, "text": "\n".join(lines),
                         "disable_web_page_preview": "true"}, timeout=30)
@@ -362,7 +375,18 @@ def main():
     s_out.to_csv(HIST / f"{NOW:%Y-%m-%d}-support.csv", index=False)
     (DOCS / "index.html").write_text(build_html(df, new_syms, sup), encoding="utf-8")
 
-    send_telegram(df, new_syms, os.getenv("PAGE_URL", ""), sup)
+    # Client screening report (score + returns)
+    rep = report.build(data, cons, df, sup)
+    if not rep.empty:
+        (DOCS / "report.html").write_text(report.html(rep, NOW), encoding="utf-8")
+        (HIST / f"{NOW:%Y-%m-%d}-report.html").write_text(report.html(rep, NOW), encoding="utf-8")
+        r_out = rep.drop(columns=[c for c in rep.columns if c.startswith("_")]).copy()
+        for col in ["1D", "1W", "1M", "3M", "6M", "1Y", "From 52W high"]:
+            r_out[col] = (r_out[col] * 100).round(2)
+        r_out.to_csv(DOCS / "report.csv", index=False)
+    print(f"Report: {len(rep)} stocks scored")
+
+    send_telegram(df, new_syms, os.getenv("PAGE_URL", ""), sup, rep)
 
 
 if __name__ == "__main__":
