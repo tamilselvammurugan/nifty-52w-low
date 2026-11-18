@@ -1,109 +1,109 @@
-Symbol,Company,Segment,LTP,Score,Fundamental,Technical,Label,Support,Support status,Near 52W low,1D,1W,1M,3M,6M,1Y,From 52W high
-SOLARINDS,Solar Industries India Ltd.,Nifty 100,18585.0,84,50,34,Strong setup,18565.0,Holding,False,-1.25,-2.31,-6.45,-6.93,7.34,34.97,-18.13
-HAL,Hindustan Aeronautics Ltd.,Nifty 100,4663.3,84,50,34,Strong setup,4674.5,Holding,False,-1.35,-5.77,-6.53,-7.82,7.78,-3.01,-9.45
-AJANTPHARM,Ajanta Pharmaceuticals Ltd.,Midcap 150,3287.0,84,50,34,Strong setup,3253.45,Holding,False,-2.19,-1.7,-2.16,-10.5,3.46,33.72,-13.41
-OFSS,Oracle Financial Services Software Ltd.,Midcap 150,9680.5,82,47,35,Strong setup,9585.43,Holding,False,-0.62,-4.15,-6.79,-17.89,2.89,18.38,-22.8
-MPHASIS,MphasiS Ltd.,Midcap 150,2377.0,81,47,34,Strong setup,2385.15,Holding,False,-2.3,-3.18,-3.11,-6.6,14.1,-10.59,-20.1
-GVT&D,GE Vernova T&D India Ltd.,Midcap 150,4244.1,80,50,30,Strong setup,4228.68,Holding,False,-1.76,0.49,7.2,-1.07,-4.13,41.66,-24.88
-APARINDS,Apar Industries Ltd.,Midcap 150,13990.0,79,45,34,Strong setup,13788.5,Holding,False,-1.28,-1.49,-12.74,-15.34,15.11,50.16,-27.38
-ABBOTINDIA,Abbott India Ltd.,Midcap 150,25675.0,78,43,35,Strong setup,25256.43,Holding,True,-0.54,-1.67,-1.89,-4.57,-8.06,-13.45,-16.25
-HEROMOTOCO,Hero MotoCorp Ltd.,Midcap 150,5290.0,77,47,30,Strong setup,5259.68,Holding,False,-0.73,-1.03,1.24,-7.92,6.72,-8.79,-17.19
-POWERINDIA,Hitachi Energy India Ltd.,Nifty 100,30265.0,76,47,29,Strong setup,30435.0,Holding,False,-0.56,4.0,4.4,-14.63,-7.73,41.33,-21.97
-SUPREMEIND,Supreme Industries Ltd.,Midcap 150,3180.9,76,47,29,Strong setup,3161.0,Holding,True,-1.56,-4.19,-11.53,-11.4,-9.23,-12.09,-21.94
-HEXT,Hexaware Technologies Ltd.,Midcap 150,488.95,76,47,29,Strong setup,474.12,Holding,False,-0.35,-1.0,-16.1,-12.84,0.41,-30.42,-39.47
-PIDILITIND,Pidilite Industries Ltd.,Nifty 100,1530.2,75,46,29,Strong setup,1529.1,Holding,False,-0.29,-2.81,1.82,-8.32,5.52,2.63,-10.38
-PREMIERENE,Premier Energies Ltd.,Midcap 150,826.6,75,46,29,Strong setup,828.52,Holding,False,-0.77,-6.49,-8.26,-18.6,-16.24,-17.0,-27.11
-NESTLEIND,Nestle India Ltd.,Nifty 100,1280.8,74,50,24,Strong setup,1256.55,Holding,False,-1.04,-0.56,1.21,-12.87,-10.54,1.24,-17.53
-APLAPOLLO,APL Apollo Tubes Ltd.,Midcap 150,2160.4,74,45,29,Strong setup,2132.55,Holding,False,-1.28,-1.71,0.36,3.8,15.16,22.49,-6.57
-TCS,Tata Consultancy Services Ltd.,Nifty 100,2387.8,72,47,25,Strong setup,2391.73,Holding,False,-0.78,-3.41,-3.13,3.22,4.58,-22.65,-28.72
-TATACAP,Tata Capital Ltd.,Nifty 100,339.4,70,40,30,Strong setup,337.81,Holding,False,-1.45,-4.7,5.14,-5.53,12.03,5.75,-13.02
-APOLLOHOSP,Apollo Hospitals Enterprise Ltd.,Nifty 100,8741.0,70,43,27,Strong setup,8685.5,Holding,False,-0.34,2.24,10.79,-2.01,8.15,18.35,-3.63
-OIL,Oil India Ltd.,Midcap 150,435.4,70,41,29,Strong setup,426.78,Holding,False,0.44,-2.33,-2.16,-8.27,-13.96,0.47,-18.0
-BAJAJHFL,Bajaj Housing Finance Ltd.,Midcap 150,81.08,70,40,30,Strong setup,81.26,Holding,False,-2.18,-1.77,-2.74,-3.48,-3.23,-23.93,-24.49
-ASIANPAINT,Asian Paints Ltd.,Nifty 100,2572.2,70,43,27,Strong setup,2596.27,Holding,False,-2.01,0.86,10.3,-4.29,-1.6,-11.49,-13.85
-ITCHOTELS,ITC Hotels Ltd.,Midcap 150,176.74,70,40,30,Strong setup,176.32,Holding,False,-0.6,2.05,8.78,6.24,15.19,-14.74,-16.75
-NAUKRI,Info Edge (India) Ltd.,Midcap 150,1161.5,69,35,34,Watch,1139.2,Holding,False,-0.72,-3.22,-5.97,-13.51,25.15,-12.33,-17.2
-SRF,SRF Ltd.,Midcap 150,2435.0,69,42,27,Watch,2438.13,Holding,False,-1.79,-3.01,-1.5,-6.92,-7.76,-13.55,-22.53
-IRCTC,Indian Railway Catering And Tourism Corporation Ltd.,Midcap 150,443.3,69,40,29,Watch,446.65,Holding,True,-1.35,-6.1,-5.0,-11.33,-16.65,-37.01,-37.83
-AUBANK,AU Small Finance Bank Ltd.,Midcap 150,971.9,67,40,27,Watch,962.22,Holding,False,-2.13,2.18,-1.77,-9.35,-0.73,5.62,-15.05
-SUZLON,Suzlon Energy Ltd.,Midcap 150,36.31,66,37,29,Watch,36.31,Holding,False,-2.37,-6.61,-13.55,-25.9,-31.81,-36.19,-39.93
-HINDALCO,Hindalco Industries Ltd.,Nifty 100,900.7,65,36,29,Watch,896.8,Holding,False,-2.92,-6.4,-0.8,-14.21,-14.47,12.99,-23.41
-NH,Narayana Hrudayalaya Ltd.,Midcap 150,1884.2,64,40,24,Watch,1850.4,Holding,False,-0.59,-0.4,9.2,2.82,2.34,-3.46,-9.97
-LTF,L&T Finance Ltd.,Midcap 150,274.47,64,40,24,Watch,277.07,Holding,False,-2.08,1.19,8.12,-12.87,-1.54,-7.43,-18.94
-ALKEM,Alkem Laboratories Ltd.,Midcap 150,5204.0,62,32,30,Watch,5086.88,Holding,False,1.32,-3.6,1.63,-3.06,-5.14,-8.91,-12.29
-ICICIAMC,ICICI Prudential Asset Management Company Ltd.,Midcap 150,2948.5,62,38,24,Watch,2934.85,Holding,False,-2.53,-0.75,3.9,-4.82,-7.85,14.02,-18.35
-LICI,Life Insurance Corporation of India,Midcap 150,397.9,61,37,24,Watch,396.15,Holding,False,0.05,-0.53,0.04,-2.95,0.56,-13.07,-13.59
-IOC,Indian Oil Corporation Ltd.,Nifty 100,143.52,61,41,20,Watch,144.58,Holding,False,-1.4,-3.28,10.08,3.54,8.88,-16.36,-24.05
-TATACOMM,Tata Communications Ltd.,Midcap 150,1756.4,61,32,29,Watch,1765.55,Holding,False,-5.09,3.29,-0.41,2.23,4.55,-6.62,-16.76
-INFY,Infosys Ltd.,Nifty 100,1108.6,61,34,27,Watch,1109.57,Holding,False,-1.89,-4.02,-4.53,-2.75,-2.97,-25.42,-35.84
-POLYCAB,Polycab India Ltd.,Nifty 100,7351.0,61,47,14,Watch,7531.25,Broke today,False,-4.56,-7.51,-10.56,-21.55,-19.67,-4.05,-27.4
-MAXHEALTH,Max Healthcare Institute Ltd.,Nifty 100,1013.8,60,35,25,Watch,1009.8,Holding,False,-1.66,9.21,19.83,1.01,-4.23,-9.21,-14.48
-BAJAJFINSV,Bajaj Finserv Ltd.,Nifty 100,1849.2,60,35,25,Watch,1846.22,Holding,False,-1.15,0.23,6.95,-7.77,5.48,-9.8,-12.71
-SIEMENS,Siemens Ltd.,Nifty 100,3481.0,60,28,32,Watch,3485.83,Holding,False,-2.27,-5.66,-3.95,-11.72,-1.53,7.12,-16.11
-SAIL,Steel Authority of India Ltd.,Midcap 150,164.38,60,31,29,Watch,165.56,Holding,False,-4.05,-6.33,-3.84,-5.31,-14.71,18.34,-21.61
-NAM-INDIA,Nippon Life India Asset Management Ltd.,Midcap 150,1050.3,60,35,25,Watch,1051.94,Holding,False,-2.56,-2.16,-3.54,-10.07,-4.57,21.81,-17.27
-HYUNDAI,Hyundai Motor India Ltd.,Nifty 100,2100.3,59,35,24,Watch,2104.6,Holding,False,-0.99,-2.62,5.7,-4.1,17.87,-12.11,-14.74
-SHRIRAMFIN,Shriram Finance Ltd.,Nifty 100,970.6,59,40,19,Watch,966.8,Holding,False,-1.25,0.15,3.26,-13.49,3.95,18.34,-15.87
-ITC,ITC Ltd.,Nifty 100,290.95,59,34,25,Watch,289.08,Holding,False,-0.8,2.09,10.42,6.56,-6.19,-28.31,-29.0
-NTPC,NTPC Ltd.,Nifty 100,318.15,59,35,24,Watch,316.27,Holding,False,-1.13,-2.71,0.95,-5.59,-18.07,-3.14,-23.23
-ADANIENSOL,Adani Energy Solutions Ltd.,Nifty 100,1471.6,59,35,24,Watch,1462.9,Holding,False,-1.48,3.85,7.74,-7.39,10.79,43.34,-17.74
-EXIDEIND,Exide Industries Ltd.,Midcap 150,389.35,59,30,29,Watch,379.03,Holding,False,2.42,0.88,4.96,-18.15,13.56,2.06,-21.57
-BLUESTARCO,Blue Star Ltd.,Midcap 150,1606.5,59,40,19,Watch,1572.0,Holding,False,-0.09,2.73,2.48,6.52,-1.67,-9.62,-20.85
-VEDL,Vedanta Ltd.,Nifty 100,247.36,59,35,24,Watch,248.47,Holding,False,-3.01,-6.26,0.51,-8.28,-24.35,-51.56,-68.89
-ATGL,Adani Total Gas Ltd.,Midcap 150,564.8,58,34,24,Watch,560.5,Holding,False,-1.09,-1.77,-2.08,-13.65,-8.35,-7.83,-34.31
-TATASTEEL,Tata Steel Ltd.,Nifty 100,180.7,58,28,30,Watch,181.08,Holding,False,-0.44,-4.53,2.96,-2.85,-13.83,4.78,-19.47
-JSL,Jindal Stainless Ltd.,Midcap 150,733.5,58,36,22,Watch,716.65,Holding,False,2.06,6.14,1.22,-0.59,-2.13,-2.33,-17.02
-JINDALSTEL,Jindal Steel Ltd.,Nifty 100,1111.3,57,30,27,Watch,1093.8,Holding,False,-2.43,-3.03,7.89,1.81,-9.8,4.22,-14.92
-ASTERDM,Aster DM Quality Care Ltd.,Midcap 150,731.85,56,31,25,Watch,719.84,Holding,False,-2.42,-0.22,7.21,-11.01,-2.89,7.46,-17.89
-ABB,ABB India Ltd.,Nifty 100,6778.0,56,31,25,Watch,6798.72,Holding,False,-2.09,-2.66,-0.34,-11.51,5.68,33.41,-14.47
-WIPRO,Wipro Ltd.,Nifty 100,186.74,56,32,24,Watch,186.75,Holding,False,-1.66,-5.68,1.27,2.66,-2.83,-22.48,-31.62
-CGPOWER,CG Power and Industrial Solutions Ltd.,Nifty 100,789.65,56,42,14,Watch,799.35,Broke today,False,-1.42,-4.01,-6.66,-12.14,-2.36,7.62,-19.5
-HAVELLS,Havells India Ltd.,Midcap 150,1136.0,55,36,19,Watch,1141.85,Holding,False,-3.32,-3.25,1.34,-12.55,-4.92,-22.62,-25.0
-ASHOKLEY,Ashok Leyland Ltd.,Midcap 150,159.91,55,31,24,Watch,155.15,Holding,False,-0.37,-8.04,7.39,-9.71,5.8,8.61,-25.77
-LINDEINDIA,Linde India Ltd.,Midcap 150,6798.0,55,30,25,Watch,6744.36,Holding,False,-1.64,0.05,13.34,1.52,-7.54,19.36,-15.54
-TATACONSUM,Tata Consumer Products Ltd.,Nifty 100,1119.7,55,30,25,Watch,1089.0,Holding,False,0.66,2.44,14.38,4.39,-9.04,-2.98,-12.71
-IDFCFIRSTB,IDFC First Bank Ltd.,Midcap 150,82.6,54,27,27,Watch,83.22,Holding,False,-1.18,2.95,5.79,-2.88,22.21,3.11,-7.82
-OBEROIRLTY,Oberoi Realty Ltd.,Midcap 150,1808.6,54,30,24,Watch,1774.8,Holding,False,-0.61,3.69,6.2,-6.34,12.99,5.74,-8.94
-CIPLA,Cipla Ltd.,Nifty 100,1427.7,54,19,35,Watch,1363.98,Holding,False,2.86,0.55,7.74,-0.27,0.11,-5.73,-7.27
-TORNTPOWER,Torrent Power Ltd.,Midcap 150,1212.4,53,29,24,Watch,1205.25,Holding,False,-0.3,-1.94,-1.13,-7.65,-20.42,-7.67,-33.53
-NHPC,NHPC Ltd.,Midcap 150,73.76,53,33,20,Watch,74.67,Broke today,False,-1.39,-5.31,3.25,-3.71,-5.08,-8.41,-15.05
-CANBK,Canara Bank,Nifty 100,132.74,53,28,25,Watch,131.98,Holding,False,-0.94,0.33,12.22,1.25,6.28,-10.91,-18.51
-VBL,Varun Beverages Ltd.,Nifty 100,425.05,52,28,24,Watch,424.5,Holding,False,-1.15,-1.98,-1.27,-2.03,-16.9,-7.17,-23.52
-POWERGRID,Power Grid Corporation of India Ltd.,Nifty 100,257.25,52,28,24,Watch,255.05,Holding,False,-0.29,-2.46,2.72,-3.34,-13.25,-6.18,-20.83
-BPCL,Bharat Petroleum Corporation Ltd.,Nifty 100,303.35,50,26,24,Watch,304.9,Holding,False,-0.8,-3.77,3.36,-4.2,8.03,-18.42,-22.55
-ONGC,Oil & Natural Gas Corporation Ltd.,Nifty 100,224.39,50,40,10,Watch,,,True,0.39,-4.43,1.08,-5.91,-24.5,-9.14,-27.03
-BRITANNIA,Britannia Industries Ltd.,Nifty 100,4698.4,49,39,10,Weak,,,True,-1.17,-1.91,-3.13,-15.47,-13.09,-19.55,-25.08
-NLCINDIA,NLC India Ltd.,Midcap 150,227.21,48,38,10,Weak,,,True,-3.24,-8.65,-10.32,-18.17,-34.74,-10.95,-41.41
-JIOFIN,Jio Financial Services Ltd.,Nifty 100,223.38,47,20,27,Weak,224.81,Holding,False,-2.44,-3.13,3.3,-10.56,-3.98,-26.99,-28.37
-SBILIFE,SBI Life Insurance Company Ltd.,Nifty 100,1790.1,47,28,19,Weak,1807.6,Holding,False,-1.37,1.31,8.05,-0.02,-3.78,-10.19,-16.04
-LUPIN,Lupin Ltd.,Midcap 150,1963.4,47,37,10,Weak,,,True,0.69,-2.97,0.09,-13.09,-12.83,-4.1,-22.38
-JSWENERGY,JSW Energy Ltd.,Midcap 150,509.6,46,22,24,Weak,504.12,Holding,False,-0.71,-2.59,6.4,-9.0,-1.06,-3.29,-17.45
-TMCV,Tata Motors Ltd.,Nifty 100,437.1,45,20,25,Weak,430.18,Holding,False,-1.92,-2.01,3.81,-7.08,15.09,34.43,-14.13
-SHREECEM,Shree Cement Ltd.,Midcap 150,24760.0,45,20,25,Weak,24735.08,Holding,False,-0.44,-0.64,10.96,-0.14,-0.84,-6.28,-11.85
-CONCOR,Container Corporation of India Ltd.,Midcap 150,435.75,45,21,24,Weak,435.35,Holding,False,-1.39,-2.84,-2.72,-16.92,-13.19,-16.62,-19.85
-BDL,Bharat Dynamics Ltd.,Midcap 150,1011.65,45,35,10,Weak,,,True,-1.5,-8.03,-9.24,-26.69,-22.73,-35.08,-36.53
-BHARATFORG,Bharat Forge Ltd.,Midcap 150,1685.4,45,16,29,Weak,1680.25,Holding,False,-1.71,-3.61,-8.15,-19.47,-10.87,20.68,-26.56
-CUMMINSIND,Cummins India Ltd.,Nifty 100,3976.8,44,34,10,Weak,,,True,-2.17,-5.98,-13.7,-27.03,-24.94,-6.48,-34.81
-PAGEIND,Page Industries Ltd.,Midcap 150,30810.0,44,37,7,Weak,,,True,-0.95,-15.75,-14.76,-17.53,-17.85,-21.51,-29.75
-ENRIN,Siemens Energy India Ltd.,Nifty 100,2971.7,44,35,9,Weak,3017.85,Broke today,False,-1.65,0.32,2.86,-17.58,-2.91,-11.26,-25.11
-INDUSINDBK,IndusInd Bank Ltd.,Midcap 150,912.2,44,20,24,Weak,906.05,Holding,False,-2.02,1.36,4.01,-9.74,2.25,7.58,-15.37
-PFC,Power Finance Corporation Ltd.,Nifty 100,320.3,43,33,10,Weak,,,True,-2.35,-7.01,-3.89,-14.45,-25.48,-14.5,-34.16
-ADANIENT,Adani Enterprises Ltd.,Nifty 100,2682.9,43,13,30,Weak,2635.62,Holding,False,-2.27,-1.16,-0.34,-10.79,-0.26,10.1,-17.32
-TATAPOWER,Tata Power Co. Ltd.,Nifty 100,339.5,43,33,10,Weak,,,True,-1.45,-5.69,-4.06,-11.01,-16.04,-12.1,-26.97
-GRASIM,Grasim Industries Ltd.,Nifty 100,3054.6,43,13,30,Weak,3001.82,Holding,False,-0.01,-3.23,4.61,-6.03,3.76,10.59,-10.45
-KEI,KEI Industries Ltd.,Midcap 150,3756.4,42,32,10,Weak,,,True,-2.46,-6.24,-16.19,-36.04,-26.17,-8.96,-36.32
-JKCEMENT,J.K. Cement Ltd.,Midcap 150,5148.5,41,29,12,Weak,5203.67,Broke today,False,-1.98,1.9,5.09,-2.98,-5.77,-6.17,-15.67
-ASTRAL,Astral Ltd.,Midcap 150,1231.1,40,30,10,Weak,,,True,-2.06,-3.28,-14.7,-20.9,-20.62,-15.08,-30.4
-HINDPETRO,Hindustan Petroleum Corporation Ltd.,Midcap 150,386.3,38,13,25,Weak,381.61,Holding,False,-0.83,-3.46,11.65,4.12,7.63,-20.11,-24.02
-NTPCGREEN,NTPC Green Energy Ltd.,Midcap 150,82.68,38,28,10,Weak,,,True,-0.37,-0.98,-7.95,-10.27,-22.71,-15.86,-31.07
-TATAINVEST,Tata Investment Corporation Ltd.,Midcap 150,594.25,36,12,24,Weak,592.25,Holding,False,-2.51,0.55,-3.15,-9.21,-10.33,-22.57,-25.25
-COCHINSHIP,Cochin Shipyard Ltd.,Midcap 150,1139.4,34,24,10,Weak,,,True,-0.66,-5.21,-8.76,-21.84,-24.72,-33.37,-38.17
-ESCORTS,Escorts Kubota Ltd.,Midcap 150,2386.8,34,27,7,Weak,,,True,-0.61,-1.44,-13.24,-23.83,-19.66,-34.04,-40.15
-RECLTD,REC Ltd.,Midcap 150,290.75,32,22,10,Weak,,,True,-2.43,-6.36,-5.54,-14.49,-12.87,-19.02,-25.03
-FACT,Fertilisers and Chemicals Travancore Ltd.,Midcap 150,772.75,32,10,22,Weak,773.72,Holding,False,-2.67,3.25,5.18,-4.33,-12.46,-14.94,-27.0
-HDFCLIFE,HDFC Life Insurance Company Ltd.,Nifty 100,576.7,31,26,5,Weak,591.72,Broke today,False,-3.08,0.55,4.29,6.21,-4.67,-24.3,-26.86
-EMBASSY,EMBASSY OFFICE PARKS REIT,Midcap 150,420.0,30,0,30,Weak,420.57,Holding,True,-0.85,0.76,-3.43,-6.46,-1.24,-1.01,-9.09
-SWIGGY,Swiggy Ltd.,Midcap 150,180.94,28,18,10,Weak,,,True,-4.01,-4.29,-22.77,-35.1,-28.79,-54.0,-57.08
-THERMAX,Thermax Ltd.,Midcap 150,2667.7,25,18,7,Weak,,,True,-2.56,-2.12,-19.81,-35.58,-39.28,-9.37,-49.45
-TMPV,Tata Motors Passenger Vehicles Ltd.,Nifty 100,252.85,24,14,10,Weak,,,True,-2.45,-15.51,-11.85,-23.43,-28.4,-31.9,-38.03
-PIIND,PI Industries Ltd.,Midcap 150,1627.0,21,14,7,Weak,,,True,-2.69,-7.61,-25.71,-34.18,-47.45,-52.95,-54.23
+Symbol,Company,Segment,LTP,Score,Fundamental,Technical,Label,Support,Support status,Near 52W low,Indices,1D,1W,1M,3M,6M,1Y,From 52W high
+SOLARINDS,Solar Industries India Ltd.,Nifty 100,18583.0,84,50,34,Strong setup,18565.0,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.26,-2.32,-6.46,-6.94,7.33,34.95,-18.14
+HAL,Hindustan Aeronautics Ltd.,Nifty 100,4672.1,84,50,34,Strong setup,4674.5,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.16,-5.6,-6.35,-7.65,7.99,-2.82,-9.28
+AJANTPHARM,Ajanta Pharmaceuticals Ltd.,Midcap 150,3286.3,84,50,34,Strong setup,3253.45,Holding,False,Midcap 150,-2.21,-1.73,-2.18,-10.52,3.43,33.69,-13.43
+OFSS,Oracle Financial Services Software Ltd.,Midcap 150,9687.0,82,47,35,Strong setup,9585.43,Holding,False,"Midcap 150, Nifty 200",-0.55,-4.09,-6.73,-17.83,2.96,18.46,-22.75
+MPHASIS,MphasiS Ltd.,Midcap 150,2376.1,81,47,34,Strong setup,2385.15,Holding,False,"Midcap 150, Nifty 200",-2.33,-3.21,-3.14,-6.64,14.06,-10.62,-20.13
+GVT&D,GE Vernova T&D India Ltd.,Midcap 150,4245.5,80,50,30,Strong setup,4228.68,Holding,False,"Midcap 150, Nifty 200",-1.72,0.52,7.23,-1.04,-4.1,41.71,-24.86
+APARINDS,Apar Industries Ltd.,Midcap 150,13971.0,79,45,34,Strong setup,13788.5,Holding,False,"Midcap 150, Nifty 200",-1.41,-1.62,-12.86,-15.45,14.95,49.95,-27.48
+ABBOTINDIA,Abbott India Ltd.,Midcap 150,25675.0,78,43,35,Strong setup,25256.43,Holding,True,Midcap 150,-0.54,-1.67,-1.89,-4.57,-8.06,-13.45,-16.25
+HEROMOTOCO,Hero MotoCorp Ltd.,Midcap 150,5283.0,77,47,30,Strong setup,5259.68,Holding,False,"Midcap 150, Nifty 200",-0.86,-1.16,1.11,-8.04,6.58,-8.91,-17.3
+POWERINDIA,Hitachi Energy India Ltd.,Nifty 100,30285.0,76,47,29,Strong setup,30435.0,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-0.49,4.07,4.47,-14.57,-7.67,41.42,-21.92
+HEXT,Hexaware Technologies Ltd.,Midcap 150,488.5,76,47,29,Strong setup,474.12,Holding,False,Midcap 150,-0.44,-1.09,-16.17,-12.92,0.32,-30.48,-39.52
+SUPREMEIND,Supreme Industries Ltd.,Midcap 150,3183.8,76,47,29,Strong setup,3161.0,Holding,True,"Midcap 150, Nifty 200",-1.47,-4.1,-11.45,-11.31,-9.14,-12.01,-21.87
+PREMIERENE,Premier Energies Ltd.,Midcap 150,826.0,75,46,29,Strong setup,828.52,Holding,False,"Midcap 150, Nifty 200",-0.84,-6.56,-8.33,-18.66,-16.3,-17.06,-27.16
+PIDILITIND,Pidilite Industries Ltd.,Nifty 100,1528.2,75,46,29,Strong setup,1529.1,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-0.42,-2.93,1.69,-8.44,5.38,2.49,-10.5
+NESTLEIND,Nestle India Ltd.,Nifty 100,1281.5,74,50,24,Strong setup,1256.55,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.99,-0.5,1.26,-12.82,-10.49,1.3,-17.48
+APLAPOLLO,APL Apollo Tubes Ltd.,Midcap 150,2160.7,74,45,29,Strong setup,2132.55,Holding,False,"Midcap 150, Nifty 200",-1.27,-1.7,0.37,3.81,15.18,22.5,-6.56
+TCS,Tata Consultancy Services Ltd.,Nifty 100,2386.4,72,47,25,Strong setup,2391.73,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.84,-3.47,-3.19,3.16,4.52,-22.7,-28.76
+BAJAJHFL,Bajaj Housing Finance Ltd.,Midcap 150,81.12,70,40,30,Strong setup,81.26,Holding,False,Midcap 150,-2.14,-1.72,-2.69,-3.43,-3.19,-23.89,-24.46
+APOLLOHOSP,Apollo Hospitals Enterprise Ltd.,Nifty 100,8744.0,70,43,27,Strong setup,8685.5,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.31,2.27,10.83,-1.98,8.18,18.39,-3.6
+OIL,Oil India Ltd.,Midcap 150,435.9,70,41,29,Strong setup,426.78,Holding,False,"Midcap 150, Nifty 200",0.55,-2.22,-2.04,-8.16,-13.86,0.59,-17.91
+TATACAP,Tata Capital Ltd.,Nifty 100,339.45,70,40,30,Strong setup,337.81,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.44,-4.69,5.16,-5.51,12.05,5.76,-13.01
+ITCHOTELS,ITC Hotels Ltd.,Midcap 150,176.72,70,40,30,Strong setup,176.32,Holding,False,Midcap 150,-0.61,2.04,8.76,6.23,15.17,-14.75,-16.76
+ASIANPAINT,Asian Paints Ltd.,Nifty 100,2573.5,70,43,27,Strong setup,2596.27,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-1.96,0.91,10.36,-4.24,-1.55,-11.44,-13.81
+IRCTC,Indian Railway Catering And Tourism Corporation Ltd.,Midcap 150,443.45,69,40,29,Watch,446.65,Holding,True,"Midcap 150, Nifty 200",-1.31,-6.07,-4.97,-11.3,-16.62,-36.99,-37.81
+SRF,SRF Ltd.,Midcap 150,2435.0,69,42,27,Watch,2438.13,Holding,False,"Midcap 150, Nifty 200",-1.79,-3.01,-1.5,-6.92,-7.76,-13.55,-22.53
+NAUKRI,Info Edge (India) Ltd.,Midcap 150,1165.0,69,35,34,Watch,1139.2,Holding,False,"Midcap 150, Nifty 200",-0.42,-2.93,-5.68,-13.25,25.53,-12.07,-16.95
+AUBANK,AU Small Finance Bank Ltd.,Midcap 150,971.7,67,40,27,Watch,962.22,Holding,False,"Midcap 150, Nifty 200",-2.15,2.16,-1.79,-9.37,-0.75,5.6,-15.07
+SUZLON,Suzlon Energy Ltd.,Midcap 150,36.31,66,37,29,Watch,36.31,Holding,False,"Midcap 150, Nifty 200",-2.37,-6.61,-13.55,-25.9,-31.81,-36.19,-39.93
+HINDALCO,Hindalco Industries Ltd.,Nifty 100,902.15,65,36,29,Watch,896.8,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-2.76,-6.25,-0.64,-14.07,-14.33,13.17,-23.29
+LTF,L&T Finance Ltd.,Midcap 150,274.39,64,40,24,Watch,277.07,Holding,False,"Midcap 150, Nifty 200",-2.11,1.16,8.09,-12.89,-1.56,-7.46,-18.96
+NH,Narayana Hrudayalaya Ltd.,Midcap 150,1883.8,64,40,24,Watch,1850.4,Holding,False,Midcap 150,-0.61,-0.42,9.18,2.79,2.32,-3.48,-9.99
+JSL,Jindal Stainless Ltd.,Midcap 150,733.9,63,36,27,Watch,716.65,Holding,False,Midcap 150,2.11,6.2,1.28,-0.54,-2.08,-2.28,-16.98
+ALKEM,Alkem Laboratories Ltd.,Midcap 150,5204.5,62,32,30,Watch,5086.88,Holding,False,Midcap 150,1.33,-3.59,1.64,-3.05,-5.13,-8.9,-12.29
+ICICIAMC,ICICI Prudential Asset Management Company Ltd.,Midcap 150,2948.5,62,38,24,Watch,2934.85,Holding,False,"Midcap 150, Nifty 200",-2.53,-0.75,3.9,-4.82,-7.85,14.02,-18.35
+IOC,Indian Oil Corporation Ltd.,Nifty 100,143.57,61,41,20,Watch,144.58,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.37,-3.24,10.12,3.58,8.92,-16.33,-24.02
+TATACOMM,Tata Communications Ltd.,Midcap 150,1757.0,61,32,29,Watch,1765.55,Holding,False,"Midcap 150, Nifty 200",-5.05,3.33,-0.38,2.26,4.58,-6.59,-16.73
+INFY,Infosys Ltd.,Nifty 100,1108.3,61,34,27,Watch,1109.57,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-1.92,-4.04,-4.56,-2.77,-2.99,-25.44,-35.86
+LICI,Life Insurance Corporation of India,Midcap 150,397.95,61,37,24,Watch,396.15,Holding,False,"Midcap 150, Nifty 200",0.06,-0.51,0.05,-2.94,0.57,-13.06,-13.58
+POLYCAB,Polycab India Ltd.,Nifty 100,7352.0,61,47,14,Watch,7531.25,Broke today,False,"Nifty Next 50, Nifty 100, Nifty 200",-4.54,-7.5,-10.55,-21.54,-19.66,-4.03,-27.39
+SIEMENS,Siemens Ltd.,Nifty 100,3482.0,60,28,32,Watch,3485.83,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-2.24,-5.64,-3.92,-11.69,-1.5,7.15,-16.08
+SAIL,Steel Authority of India Ltd.,Midcap 150,164.45,60,31,29,Watch,165.56,Holding,False,"Midcap 150, Nifty 200",-4.0,-6.29,-3.8,-5.27,-14.67,18.39,-21.58
+BAJAJFINSV,Bajaj Finserv Ltd.,Nifty 100,1848.9,60,35,25,Watch,1846.22,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-1.17,0.21,6.93,-7.79,5.46,-9.82,-12.73
+ASHOKLEY,Ashok Leyland Ltd.,Midcap 150,160.05,60,31,29,Watch,155.15,Holding,False,"Midcap 150, Nifty 200",-0.28,-7.96,7.48,-9.63,5.9,8.71,-25.7
+NAM-INDIA,Nippon Life India Asset Management Ltd.,Midcap 150,1049.0,60,35,25,Watch,1051.94,Holding,False,Midcap 150,-2.68,-2.28,-3.66,-10.18,-4.69,21.66,-17.37
+COALINDIA,Coal India Ltd.,Nifty 100,388.05,60,50,10,Watch,,,True,"Nifty 50, Nifty 100, Nifty 200",-0.89,-4.49,-6.99,-4.99,-16.02,1.07,-21.01
+MAXHEALTH,Max Healthcare Institute Ltd.,Nifty 100,1015.9,60,35,25,Watch,1009.8,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-1.46,9.44,20.08,1.22,-4.03,-9.03,-14.3
+VEDL,Vedanta Ltd.,Nifty 100,247.47,59,35,24,Watch,248.47,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-2.96,-6.22,0.56,-8.24,-24.32,-51.54,-68.87
+NTPC,NTPC Ltd.,Nifty 100,317.7,59,35,24,Watch,316.27,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-1.27,-2.84,0.81,-5.73,-18.18,-3.27,-23.33
+BLUESTARCO,Blue Star Ltd.,Midcap 150,1606.6,59,40,19,Watch,1572.0,Holding,False,"Midcap 150, Nifty 200",-0.09,2.74,2.49,6.53,-1.66,-9.61,-20.84
+ITC,ITC Ltd.,Nifty 100,290.85,59,34,25,Watch,289.08,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.84,2.05,10.38,6.52,-6.22,-28.34,-29.03
+ADANIENSOL,Adani Energy Solutions Ltd.,Nifty 100,1472.3,59,35,24,Watch,1462.9,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.43,3.9,7.79,-7.35,10.84,43.41,-17.7
+EXIDEIND,Exide Industries Ltd.,Midcap 150,389.65,59,30,29,Watch,379.03,Holding,False,"Midcap 150, Nifty 200",2.5,0.96,5.04,-18.09,13.65,2.14,-21.5
+HYUNDAI,Hyundai Motor India Ltd.,Nifty 100,2100.3,59,35,24,Watch,2104.6,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-0.99,-2.62,5.7,-4.1,17.87,-12.11,-14.74
+ATGL,Adani Total Gas Ltd.,Midcap 150,564.6,58,34,24,Watch,560.5,Holding,False,"Midcap 150, Nifty 200",-1.12,-1.8,-2.12,-13.68,-8.38,-7.87,-34.34
+TATASTEEL,Tata Steel Ltd.,Nifty 100,180.81,58,28,30,Watch,181.08,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.38,-4.47,3.03,-2.79,-13.78,4.85,-19.43
+HAVELLS,Havells India Ltd.,Midcap 150,1135.5,58,36,22,Watch,1129.8,Holding,False,"Midcap 150, Nifty 200",-3.36,-3.29,1.29,-12.59,-4.96,-22.65,-25.03
+JINDALSTEL,Jindal Steel Ltd.,Nifty 100,1111.1,57,30,27,Watch,1093.8,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-2.45,-3.05,7.87,1.8,-9.81,4.2,-14.94
+ABB,ABB India Ltd.,Nifty 100,6777.0,56,31,25,Watch,6798.72,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-2.11,-2.67,-0.35,-11.53,5.67,33.39,-14.48
+CGPOWER,CG Power and Industrial Solutions Ltd.,Nifty 100,789.85,56,42,14,Watch,799.35,Broke today,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.39,-3.98,-6.64,-12.12,-2.34,7.65,-19.48
+WIPRO,Wipro Ltd.,Nifty 100,186.68,56,32,24,Watch,186.75,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.69,-5.71,1.24,2.63,-2.86,-22.51,-31.64
+ASTERDM,Aster DM Quality Care Ltd.,Midcap 150,731.3,56,31,25,Watch,719.84,Holding,False,Midcap 150,-2.49,-0.3,7.13,-11.07,-2.97,7.38,-17.95
+TATACONSUM,Tata Consumer Products Ltd.,Nifty 100,1119.5,55,30,25,Watch,1089.0,Holding,False,"Nifty 50, Nifty 100, Nifty 200",0.64,2.42,14.36,4.37,-9.06,-3.0,-12.72
+LINDEINDIA,Linde India Ltd.,Midcap 150,6778.0,55,30,25,Watch,6744.36,Holding,False,Midcap 150,-1.93,-0.24,13.0,1.22,-7.81,19.01,-15.79
+IDFCFIRSTB,IDFC First Bank Ltd.,Midcap 150,82.66,54,27,27,Watch,83.22,Holding,False,"Midcap 150, Nifty 200",-1.11,3.03,5.87,-2.81,22.3,3.18,-7.76
+OBEROIRLTY,Oberoi Realty Ltd.,Midcap 150,1807.6,54,30,24,Watch,1774.8,Holding,False,"Midcap 150, Nifty 200",-0.66,3.63,6.14,-6.39,12.93,5.68,-8.99
+CIPLA,Cipla Ltd.,Nifty 100,1427.8,54,19,35,Watch,1363.98,Holding,False,"Nifty 50, Nifty 100, Nifty 200",2.87,0.56,7.75,-0.26,0.11,-5.72,-7.27
+NHPC,NHPC Ltd.,Midcap 150,73.81,53,33,20,Watch,74.67,Broke today,False,"Midcap 150, Nifty 200",-1.32,-5.25,3.32,-3.64,-5.02,-8.34,-14.99
+CANBK,Canara Bank,Nifty 100,132.72,53,28,25,Watch,131.98,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-0.96,0.32,12.2,1.24,6.26,-10.93,-18.52
+TORNTPOWER,Torrent Power Ltd.,Midcap 150,1213.1,53,29,24,Watch,1205.25,Holding,False,Midcap 150,-0.24,-1.88,-1.08,-7.59,-20.37,-7.62,-33.5
+VBL,Varun Beverages Ltd.,Nifty 100,425.0,52,28,24,Watch,424.5,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.16,-1.99,-1.28,-2.04,-16.91,-7.18,-23.53
+POWERGRID,Power Grid Corporation of India Ltd.,Nifty 100,257.3,52,28,24,Watch,255.05,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-0.27,-2.45,2.74,-3.33,-13.24,-6.16,-20.82
+ONGC,Oil & Natural Gas Corporation Ltd.,Nifty 100,224.42,50,40,10,Watch,,,True,"Nifty 50, Nifty 100, Nifty 200",0.4,-4.42,1.09,-5.9,-24.49,-9.12,-27.02
+BPCL,Bharat Petroleum Corporation Ltd.,Nifty 100,303.45,50,26,24,Watch,304.9,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-0.77,-3.74,3.39,-4.17,8.07,-18.39,-22.52
+BRITANNIA,Britannia Industries Ltd.,Nifty 100,4694.2,49,39,10,Weak,,,True,"Nifty Next 50, Nifty 100, Nifty 200",-1.26,-2.0,-3.21,-15.54,-13.17,-19.62,-25.14
+NLCINDIA,NLC India Ltd.,Midcap 150,226.95,48,38,10,Weak,,,True,"Midcap 150, Nifty 200",-3.35,-8.76,-10.42,-18.26,-34.81,-11.05,-41.48
+JIOFIN,Jio Financial Services Ltd.,Nifty 100,223.45,47,20,27,Weak,224.81,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-2.41,-3.1,3.33,-10.53,-3.95,-26.97,-28.35
+LUPIN,Lupin Ltd.,Midcap 150,1967.1,47,37,10,Weak,,,True,"Midcap 150, Nifty 200",0.88,-2.78,0.28,-12.92,-12.67,-3.92,-22.23
+JSWENERGY,JSW Energy Ltd.,Midcap 150,509.15,46,22,24,Weak,504.12,Holding,False,"Midcap 150, Nifty 200",-0.8,-2.68,6.31,-9.08,-1.15,-3.38,-17.53
+TMCV,Tata Motors Ltd.,Nifty 100,436.8,45,20,25,Weak,430.18,Holding,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.99,-2.07,3.74,-7.14,15.01,34.34,-14.18
+BDL,Bharat Dynamics Ltd.,Midcap 150,1011.3,45,35,10,Weak,,,True,"Midcap 150, Nifty 200",-1.54,-8.06,-9.28,-26.72,-22.75,-35.1,-36.55
+BHARATFORG,Bharat Forge Ltd.,Midcap 150,1686.2,45,16,29,Weak,1680.25,Holding,False,"Midcap 150, Nifty 200",-1.66,-3.57,-8.11,-19.44,-10.83,20.74,-26.53
+CONCOR,Container Corporation of India Ltd.,Midcap 150,435.7,45,21,24,Weak,435.35,Holding,False,"Midcap 150, Nifty 200",-1.4,-2.85,-2.73,-16.93,-13.2,-16.63,-19.86
+SHREECEM,Shree Cement Ltd.,Midcap 150,24740.0,45,20,25,Weak,24735.08,Holding,False,Midcap 150,-0.52,-0.72,10.87,-0.22,-0.92,-6.36,-11.93
+ENRIN,Siemens Energy India Ltd.,Nifty 100,2972.0,44,35,9,Weak,3017.85,Broke today,False,"Nifty Next 50, Nifty 100, Nifty 200",-1.64,0.33,2.87,-17.57,-2.9,-11.25,-25.1
+PAGEIND,Page Industries Ltd.,Midcap 150,30805.0,44,37,7,Weak,,,True,"Midcap 150, Nifty 200",-0.96,-15.76,-14.77,-17.55,-17.86,-21.53,-29.76
+CUMMINSIND,Cummins India Ltd.,Nifty 100,3979.6,44,34,10,Weak,,,True,"Nifty Next 50, Nifty 100, Nifty 200",-2.1,-5.92,-13.64,-26.98,-24.89,-6.42,-34.76
+INDUSINDBK,IndusInd Bank Ltd.,Midcap 150,912.75,44,20,24,Weak,906.05,Holding,False,"Midcap 150, Nifty 200",-1.96,1.42,4.08,-9.68,2.31,7.64,-15.32
+ADANIENT,Adani Enterprises Ltd.,Nifty 100,2680.2,43,13,30,Weak,2635.62,Holding,False,"Nifty 50, Nifty 100, Nifty 200",-2.36,-1.26,-0.44,-10.88,-0.36,9.99,-17.41
+PFC,Power Finance Corporation Ltd.,Nifty 100,320.35,43,33,10,Weak,,,True,"Nifty Next 50, Nifty 100, Nifty 200",-2.33,-7.0,-3.87,-14.44,-25.47,-14.48,-34.15
+TATAPOWER,Tata Power Co. Ltd.,Nifty 100,339.5,43,33,10,Weak,,,True,"Nifty Next 50, Nifty 100, Nifty 200",-1.45,-5.69,-4.06,-11.01,-16.04,-12.1,-26.97
+GRASIM,Grasim Industries Ltd.,Nifty 100,3055.0,43,13,30,Weak,3001.82,Holding,False,"Nifty 50, Nifty 100, Nifty 200",0.01,-3.22,4.62,-6.01,3.78,10.61,-10.44
+KEI,KEI Industries Ltd.,Midcap 150,3751.3,42,32,10,Weak,,,True,"Midcap 150, Nifty 200",-2.59,-6.37,-16.31,-36.13,-26.27,-9.08,-36.41
+JKCEMENT,J.K. Cement Ltd.,Midcap 150,5149.4,41,29,12,Weak,5203.67,Broke today,False,Midcap 150,-1.96,1.92,5.11,-2.96,-5.76,-6.15,-15.65
+ASTRAL,Astral Ltd.,Midcap 150,1232.7,40,30,10,Weak,,,True,"Midcap 150, Nifty 200",-1.93,-3.15,-14.59,-20.79,-20.51,-14.97,-30.3
+NTPCGREEN,NTPC Green Energy Ltd.,Midcap 150,82.75,38,28,10,Weak,,,True,Midcap 150,-0.29,-0.9,-7.87,-10.19,-22.64,-15.78,-31.01
+HINDPETRO,Hindustan Petroleum Corporation Ltd.,Midcap 150,386.7,38,13,25,Weak,381.61,Holding,False,"Midcap 150, Nifty 200",-0.73,-3.36,11.76,4.23,7.75,-20.03,-23.95
+TATAINVEST,Tata Investment Corporation Ltd.,Midcap 150,594.1,36,12,24,Weak,592.25,Holding,False,Midcap 150,-2.53,0.52,-3.17,-9.24,-10.35,-22.59,-25.27
+ESCORTS,Escorts Kubota Ltd.,Midcap 150,2385.7,34,27,7,Weak,,,True,Midcap 150,-0.66,-1.49,-13.28,-23.87,-19.7,-34.07,-40.18
+COCHINSHIP,Cochin Shipyard Ltd.,Midcap 150,1139.3,34,24,10,Weak,,,True,"Midcap 150, Nifty 200",-0.67,-5.22,-8.77,-21.85,-24.72,-33.37,-38.18
+FACT,Fertilisers and Chemicals Travancore Ltd.,Midcap 150,772.8,32,10,22,Weak,773.72,Holding,False,Midcap 150,-2.66,3.26,5.19,-4.32,-12.45,-14.93,-27.0
+RECLTD,REC Ltd.,Midcap 150,290.8,32,22,10,Weak,,,True,"Midcap 150, Nifty 200",-2.42,-6.34,-5.52,-14.47,-12.86,-19.01,-25.01
+SBILIFE,SBI Life Insurance Company Ltd.,Nifty 100,1788.3,32,28,4,Weak,1807.6,Broke today,False,"Nifty 50, Nifty 100, Nifty 200",-1.47,1.21,7.94,-0.12,-3.88,-10.28,-16.12
+HDFCLIFE,HDFC Life Insurance Company Ltd.,Nifty 100,576.65,31,26,5,Weak,591.72,Broke today,False,"Nifty 50, Nifty 100, Nifty 200",-3.09,0.54,4.28,6.2,-4.68,-24.3,-26.87
+EMBASSY,EMBASSY OFFICE PARKS REIT,Midcap 150,420.0,30,0,30,Weak,420.57,Holding,True,Midcap 150,-0.85,0.76,-3.43,-6.46,-1.24,-1.01,-9.09
+SWIGGY,Swiggy Ltd.,Midcap 150,181.01,28,18,10,Weak,,,True,"Midcap 150, Nifty 200",-3.97,-4.25,-22.74,-35.08,-28.76,-53.98,-57.07
+THERMAX,Thermax Ltd.,Midcap 150,2667.0,25,18,7,Weak,,,True,Midcap 150,-2.59,-2.14,-19.83,-35.6,-39.29,-9.39,-49.47
+TMPV,Tata Motors Passenger Vehicles Ltd.,Nifty 100,252.8,24,14,10,Weak,,,True,"Nifty 50, Nifty 100, Nifty 200",-2.47,-15.52,-11.87,-23.44,-28.42,-31.91,-38.04
+PIIND,PI Industries Ltd.,Midcap 150,1626.0,21,14,7,Weak,,,True,"Midcap 150, Nifty 200",-2.75,-7.67,-25.75,-34.22,-47.49,-52.98,-54.26
