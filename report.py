@@ -233,34 +233,38 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>""")
 
+    def pills(title, items):
+        cells = []
+        for a, b in items:
+            if b is None or (isinstance(b, float) and math.isnan(b)):
+                cells.append(f'<div class="pill"><span>{a}</span><b>–</b></div>')
+                continue
+            cls = "dn2" if b <= -0.05 else "dn" if b < 0 else "up" if b > 0 else ""
+            cells.append(f'<div class="pill {cls}"><span>{a}</span><b>{b*100:+.1f}%</b></div>')
+        return f'<div class="prow"><div class="ptitle">{title}</div><div class="pills">{"".join(cells)}</div></div>'
+
     cards = []
     for _, r in df.iterrows():
-        def mini(items):
-            return "".join(f"<td><div class='lbl'>{a}</div></td>" for a, _ in items), \
-                   "".join(_pc(b) for _, b in items)
-        dh, dv = mini(r._days); wh, wv = mini(r._weeks); mh, mv = mini(r._months)
         f = "".join(f"<li><b>{k}:</b> {v}</li>" for k, v in r._fwhy.items())
         t = "".join(f"<li><b>{k}:</b> {v}</li>" for k, v in r._twhy.items())
         sup = (f"Support ₹{r.Support:,.2f} — {r['Support status']}" if r.Support else
                "Not at a support level today")
         tags = " · ".join(x for x in [sup, "Near 52-week low" if r['Near 52W low'] else ""] if x)
+        overall = [(k, r[k]) for k in ["1D", "1W", "1M", "3M", "6M", "1Y"]]
         cards.append(f"""
 <div class="card" id="{r.Symbol}">
  <div class="head"><div><h3>{r.Company}</h3><div class="sym">{r.Symbol} · {r.Segment} · ₹{r.LTP:,.2f}</div></div>
- <div class="score"><span>{r.Score}</span>/100<br>{_chip(r.Label)}</div></div>
- <div class="meta">{tags}</div>
+ <div class="score"><span>{r.Score}</span><small>/100</small><div>{_chip(r.Label)}</div></div></div>
+ <div class="meta">{tags} · <b>From 52W high: {r['From 52W high']*100:+.1f}%</b></div>
  <div class="grid">
   <div><h4>Fundamentals {r.Fundamental}/50</h4><ul>{f}</ul></div>
   <div><h4>Technicals {r.Technical}/50</h4><ul>{t}</ul></div>
  </div>
  <h4>Performance</h4>
- <table class="mini"><tr><td></td>{"".join(f"<td><div class='lbl'>{k}</div></td>" for k in ["1D","1W","1M","3M","6M","1Y","From 52W high"])}</tr>
- <tr><td class="lbl">Overall</td>{"".join(_pc(r[k]) for k in ["1D","1W","1M","3M","6M","1Y","From 52W high"])}</tr></table>
- <div class="grid3">
-  <table class="mini"><tr><td class="lbl">Day-wise</td>{dh}</tr><tr><td></td>{dv}</tr></table>
-  <table class="mini"><tr><td class="lbl">Week-wise</td>{wh}</tr><tr><td></td>{wv}</tr></table>
- </div>
- <table class="mini"><tr><td class="lbl">Month-wise</td>{mh}</tr><tr><td></td>{mv}</tr></table>
+ {pills("Overall", overall)}
+ {pills("Day-wise", r._days)}
+ {pills("Week-wise", r._weeks)}
+ {pills("Month-wise", r._months)}
 </div>""")
 
     strong = (df.Label == "Strong setup").sum()
@@ -284,12 +288,25 @@ th{{background:#f3f3f3}} .n{{text-align:right}} .sym{{color:#888;font-size:11px}
 .card{{background:#fff;border-radius:10px;box-shadow:0 1px 3px #0001;padding:14px 16px;margin:14px 0}}
 .card .head{{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}}
 .card h3{{margin:0;font-size:17px}} .card h4{{margin:12px 0 6px;font-size:13px;color:#14213d}}
-.score{{text-align:right;font-size:13px}} .score span{{font-size:28px;font-weight:700}}
+.score{{text-align:right;font-size:13px;flex-shrink:0}} .score>span{{font-size:28px;font-weight:700}}
 .meta{{font-size:12px;color:#555;margin-top:4px}}
 .grid{{display:grid;grid-template-columns:1fr 1fr;gap:12px}} .grid3{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
 ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .mini td{{border:none;padding:4px 6px;font-size:12px}} .lbl{{color:#666;font-size:11px}}
 .disc{{font-size:11px;color:#666;line-height:1.5}}
+.prow{{margin:6px 0}} .ptitle{{font-size:11px;color:#666;margin-bottom:3px}}
+.pills{{display:flex;flex-wrap:wrap;gap:5px}}
+.pill{{background:#f3f3f3;border-radius:6px;padding:4px 7px;min-width:52px;text-align:center}}
+.pill span{{display:block;font-size:10px;color:#666}} .pill b{{font-size:12px}}
+.pill.up{{background:#dcf5e3;color:#126b34}} .pill.dn{{background:#fde2e1;color:#9b1c1c}}
+.pill.dn2{{background:#f5b5b5;color:#7f1010}}
+.score small{{font-size:12px;color:#666}} .score div{{margin-top:2px}}
+.box table td:first-child,.box table th:first-child{{position:sticky;left:0;background:#fff;z-index:1;white-space:normal;min-width:130px}}
+.box table th:first-child{{background:#f3f3f3}}
+.swipe{{display:none;font-size:11px;color:#888;margin:0 0 4px}}
+@media(max-width:700px){{.wrap{{padding:10px}} .kpis{{display:grid;grid-template-columns:1fr 1fr}}
+ .kpi{{min-width:0}} .swipe{{display:block}} .card{{padding:12px}} .score>span{{font-size:24px}}
+ header h1{{font-size:19px}} .box{{padding:6px}}}}
 @media(max-width:700px){{.grid,.grid3{{grid-template-columns:1fr}}}}
 </style></head><body>
 <header><h1>Daily Stock Screening Report</h1>
@@ -301,7 +318,7 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
  <div class="kpi"><b style="color:#9a4b00">{watch}</b>Watch (50–69)</div>
  <div class="kpi"><b style="color:#555">{len(df)-strong-watch}</b>Weak (&lt;50)</div>
 </div>
-<div class="box"><table>
+<div class="box"><p class="swipe">← Swipe the table sideways to see all columns · tap a company for details</p><table>
 <tr><th>Company</th><th class="n">Score</th><th>Label</th><th class="n">Fund.</th><th class="n">Tech.</th><th class="n">LTP ₹</th>
 <th class="n">1D</th><th class="n">1W</th><th class="n">1M</th><th class="n">3M</th><th class="n">6M</th><th class="n">1Y</th><th class="n">From 52W high</th></tr>
 {''.join(summary)}
