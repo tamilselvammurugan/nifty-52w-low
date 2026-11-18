@@ -20,6 +20,38 @@ DISCLAIMER = ("This is an automated screening report for information and educati
               "adviser before investing.")
 
 
+# ---------------- index membership / links ----------------
+TV_LAYOUT = "xmMqv7cK"   # user's TradingView chart layout
+INDEX_LISTS = {
+    "Nifty 50": "https://www.niftyindices.com/IndexConstituent/ind_nifty50list.csv",
+    "Nifty Next 50": "https://www.niftyindices.com/IndexConstituent/ind_niftynext50list.csv",
+    "Nifty 200": "https://www.niftyindices.com/IndexConstituent/ind_nifty200list.csv",
+}
+TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
+
+
+def index_membership(cons: pd.DataFrame) -> dict:
+    """symbol -> set of index names."""
+    import io, requests
+    hdr = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0 Safari/537.36"}
+    mem = {s: set() for s in cons["Symbol"]}
+    for s, seg in zip(cons["Symbol"], cons["Segment"]):
+        mem[s].add("Nifty 100" if seg == "Nifty 100" else "Midcap 150" if seg == "Midcap 150" else seg)
+    for name, url in INDEX_LISTS.items():
+        try:
+            r = requests.get(url, headers=hdr, timeout=30); r.raise_for_status()
+            for sym in pd.read_csv(io.StringIO(r.text))["Symbol"]:
+                mem.setdefault(sym, set()).add(name)
+        except Exception as e:
+            print(f"Index list {name} failed: {e}")
+    return mem
+
+
+def tv_url(symbol: str) -> str:
+    tv = symbol.replace("&", "_").replace("-", "_")
+    return f"https://www.tradingview.com/chart/{TV_LAYOUT}/?symbol=NSE%3A{tv}"
+
+
 # ---------------- returns ----------------
 def pct(a, b):
     try:
@@ -164,7 +196,8 @@ def label(score):
 
 
 # ---------------- build ----------------
-def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame) -> pd.DataFrame:
+def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None) -> pd.DataFrame:
+    mem = mem or {}
     syms = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
     sup_map = {row["Symbol"]: row for row in sup.to_dict("records")} if len(sup) else {}
     names = dict(zip(cons["Symbol"], cons["Company"]))
@@ -191,6 +224,8 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame) -
             "Support": srow.get("Support") if srow else None,
             "Support status": srow.get("Status") if srow else "",
             "Near 52W low": s in near,
+            "Indices": ", ".join(t for t in TABS[1:] if t in mem.get(s, set())),
+            "_idx": mem.get(s, set()),
             **{k: ret[k] for k in ["1D", "1W", "1M", "3M", "6M", "1Y", "From 52W high"]},
             "_days": ret["days"], "_weeks": ret["weeks"], "_months": ret["months"],
             "_fwhy": fwhy, "_twhy": twhy,
@@ -223,15 +258,28 @@ def _chip(lbl):
 
 
 def html(df: pd.DataFrame, now: dt.datetime) -> str:
-    summary = []
-    for _, r in df.iterrows():
-        summary.append(f"""<tr>
+    def srow(r):
+        return f"""<tr>
 <td><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+<td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
 <td class="n"><b>{r.Score}</b>/100</td><td>{_chip(r.Label)}</td>
 <td class="n">{r.Fundamental}/50</td><td class="n">{r.Technical}/50</td>
 <td class="n">{r.LTP:,.2f}</td>
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
-</tr>""")
+</tr>"""
+
+    head = """<tr><th>Company</th><th>Chart</th><th class="n">Score</th><th>Label</th><th class="n">Fund.</th><th class="n">Tech.</th><th class="n">LTP ₹</th>
+<th class="n">1D</th><th class="n">1W</th><th class="n">1M</th><th class="n">3M</th><th class="n">6M</th><th class="n">1Y</th><th class="n">From 52W high</th></tr>"""
+    tab_btns, tab_panels = [], []
+    for i, tab in enumerate(TABS):
+        sub = df if tab == "All" else df[df["_idx"].apply(lambda x: tab in x)].head(50)
+        tid = "t" + str(i)
+        note = (f"All {len(sub)} stocks" if tab == "All" else
+                f"Top {len(sub)} {tab} stocks by score (max 50)")
+        tab_btns.append(f'<button class="tab{" on" if i == 0 else ""}" data-t="{tid}">{tab} <small>{len(sub)}</small></button>')
+        body = "".join(srow(r) for _, r in sub.iterrows()) or '<tr><td colspan="14">No stocks from this index on today\'s list.</td></tr>'
+        tab_panels.append(f'<div class="panel" id="{tid}"{"" if i == 0 else " hidden"}><p class="swipe">{note} · ← swipe sideways · tap a company for details</p><table>{head}{body}</table></div>')
+    summary_html = f'<div class="tabs">{"".join(tab_btns)}</div><div class="box">{"".join(tab_panels)}</div>'
 
     def pills(title, items):
         cells = []
@@ -255,7 +303,8 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
 <div class="card" id="{r.Symbol}">
  <div class="head"><div><h3>{r.Company}</h3><div class="sym">{r.Symbol} · {r.Segment} · ₹{r.LTP:,.2f}</div></div>
  <div class="score"><span>{r.Score}</span><small>/100</small><div>{_chip(r.Label)}</div></div></div>
- <div class="meta">{tags} · <b>From 52W high: {r['From 52W high']*100:+.1f}%</b></div>
+ <div class="meta">{tags} · <b>From 52W high: {r['From 52W high']*100:+.1f}%</b>{(" · " + r.Indices) if r.Indices else ""}</div>
+ <a class="tvbtn" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 View full chart on TradingView</a>
  <div class="grid">
   <div><h4>Fundamentals {r.Fundamental}/50</h4><ul>{f}</ul></div>
   <div><h4>Technicals {r.Technical}/50</h4><ul>{t}</ul></div>
@@ -303,9 +352,15 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .score small{{font-size:12px;color:#666}} .score div{{margin-top:2px}}
 .box table td:first-child,.box table th:first-child{{position:sticky;left:0;background:#fff;z-index:1;white-space:normal;min-width:130px}}
 .box table th:first-child{{background:#f3f3f3}}
-.swipe{{display:none;font-size:11px;color:#888;margin:0 0 4px}}
+.swipe{{font-size:11px;color:#888;margin:2px 4px 6px}}
+.tabs{{display:flex;gap:6px;overflow-x:auto;margin:14px 0 0;padding-bottom:2px;-webkit-overflow-scrolling:touch}}
+.tab{{border:0;background:#e6e9ef;color:#14213d;padding:8px 12px;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}}
+.tab small{{opacity:.7;font-weight:500}} .tab.on{{background:#14213d;color:#fff}}
+.tabs+.box{{margin-top:8px}}
+.tv{{font-size:12px;text-decoration:none;white-space:nowrap}}
+.tvbtn{{display:inline-block;margin-top:8px;padding:7px 12px;border-radius:8px;background:#14213d;color:#fff;text-decoration:none;font-size:13px;font-weight:600}}
 @media(max-width:700px){{.wrap{{padding:10px}} .kpis{{display:grid;grid-template-columns:1fr 1fr}}
- .kpi{{min-width:0}} .swipe{{display:block}} .card{{padding:12px}} .score>span{{font-size:24px}}
+ .kpi{{min-width:0}} .card{{padding:12px}} .score>span{{font-size:24px}}
  header h1{{font-size:19px}} .box{{padding:6px}}}}
 @media(max-width:700px){{.grid,.grid3{{grid-template-columns:1fr}}}}
 </style></head><body>
@@ -318,14 +373,16 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
  <div class="kpi"><b style="color:#9a4b00">{watch}</b>Watch (50–69)</div>
  <div class="kpi"><b style="color:#555">{len(df)-strong-watch}</b>Weak (&lt;50)</div>
 </div>
-<div class="box"><p class="swipe">← Swipe the table sideways to see all columns · tap a company for details</p><table>
-<tr><th>Company</th><th class="n">Score</th><th>Label</th><th class="n">Fund.</th><th class="n">Tech.</th><th class="n">LTP ₹</th>
-<th class="n">1D</th><th class="n">1W</th><th class="n">1M</th><th class="n">3M</th><th class="n">6M</th><th class="n">1Y</th><th class="n">From 52W high</th></tr>
-{''.join(summary)}
-</table></div>
+{summary_html}
 <p class="disc"><b>How the score works:</b> Fundamentals (50) = ROE, debt/equity, profit growth, sales growth, profit margin.
 Technicals (50) = support held, how often the level held before, RSI, volume on the day, position vs 200-day average.
 70+ Strong setup · 50–69 Watch · below 50 Weak. Data: NSE index lists, Yahoo Finance.</p>
 {''.join(cards)}
 <p class="disc"><b>Disclaimer:</b> {DISCLAIMER}</p>
-</div></body></html>"""
+</div>
+<script>
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==b.dataset.t);
+}});
+</script></body></html>"""

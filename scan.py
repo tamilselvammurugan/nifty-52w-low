@@ -376,7 +376,7 @@ def main():
     (DOCS / "index.html").write_text(build_html(df, new_syms, sup), encoding="utf-8")
 
     # Client screening report (score + returns)
-    rep = report.build(data, cons, df, sup)
+    rep = report.build(data, cons, df, sup, report.index_membership(cons))
     if not rep.empty:
         (DOCS / "report.html").write_text(report.html(rep, NOW), encoding="utf-8")
         (HIST / f"{NOW:%Y-%m-%d}-report.html").write_text(report.html(rep, NOW), encoding="utf-8")
