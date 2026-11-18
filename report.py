@@ -28,6 +28,12 @@ INDEX_LISTS = {
     "Nifty 200": "https://www.niftyindices.com/IndexConstituent/ind_nifty200list.csv",
 }
 TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
+INDEX_NAMES = TABS[1:]
+# tab: (label, index filter, include all constituents?)
+VIEW_TABS = [("All", None, False), ("Nifty 50 · Top by score", "Nifty 50", False),
+             ("Nifty 50 · All 50", "Nifty 50", True), ("Nifty Next 50", "Nifty Next 50", False),
+             ("Nifty 100", "Nifty 100", False), ("Midcap 150", "Midcap 150", False),
+             ("Nifty 200", "Nifty 200", False)]
 
 
 def index_membership(cons: pd.DataFrame) -> dict:
@@ -196,9 +202,12 @@ def label(score):
 
 
 # ---------------- build ----------------
-def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None) -> pd.DataFrame:
+def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None,
+          extra=None) -> pd.DataFrame:
     mem = mem or {}
-    syms = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
+    screened = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
+    scr_set = set(screened)
+    syms = list(dict.fromkeys(screened + list(extra or [])))
     sup_map = {row["Symbol"]: row for row in sup.to_dict("records")} if len(sup) else {}
     names = dict(zip(cons["Symbol"], cons["Company"]))
     seg = dict(zip(cons["Symbol"], cons["Segment"]))
@@ -224,7 +233,8 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
             "Support": srow.get("Support") if srow else None,
             "Support status": srow.get("Status") if srow else "",
             "Near 52W low": s in near,
-            "Indices": ", ".join(t for t in TABS[1:] if t in mem.get(s, set())),
+            "_screened": s in scr_set,
+            "Indices": ", ".join(t for t in INDEX_NAMES if t in mem.get(s, set())),
             "_idx": mem.get(s, set()),
             **{k: ret[k] for k in ["1D", "1W", "1M", "3M", "6M", "1Y", "From 52W high"]},
             "_days": ret["days"], "_weeks": ret["weeks"], "_months": ret["months"],
@@ -239,7 +249,7 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
 # ---------------- HTML ----------------
 def _pc(v, bold_big=True):
     if v is None or (isinstance(v, float) and math.isnan(v)):
-        return '<td class="n">–</td>'
+        return '<td class="n" data-v="">–</td>'
     if v <= -0.05:
         bg, fg, b = "#f5b5b5", "#7f1010", "font-weight:700"
     elif v < 0:
@@ -248,7 +258,7 @@ def _pc(v, bold_big=True):
         bg, fg, b = "#dcf5e3", "#126b34", ""
     else:
         bg, fg, b = "transparent", "inherit", ""
-    return f'<td class="n" style="background:{bg};color:{fg};{b}">{v*100:+.1f}%</td>'
+    return f'<td class="n" data-v="{v:.6f}" style="background:{bg};color:{fg};{b}">{v*100:+.1f}%</td>'
 
 
 def _chip(lbl):
@@ -260,26 +270,45 @@ def _chip(lbl):
 def html(df: pd.DataFrame, now: dt.datetime) -> str:
     def srow(r):
         return f"""<tr>
-<td><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+<td data-v="{r.Company}"><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
-<td class="n"><b>{r.Score}</b>/100</td><td>{_chip(r.Label)}</td>
-<td class="n">{r.Fundamental}/50</td><td class="n">{r.Technical}/50</td>
-<td class="n">{r.LTP:,.2f}</td>
+<td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
+<td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td><td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
+<td class="n" data-v="{r.LTP}">{r.LTP:,.2f}</td>
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>"""
 
-    head = """<tr><th>Company</th><th>Chart</th><th class="n">Score</th><th>Label</th><th class="n">Fund.</th><th class="n">Tech.</th><th class="n">LTP ₹</th>
-<th class="n">1D</th><th class="n">1W</th><th class="n">1M</th><th class="n">3M</th><th class="n">6M</th><th class="n">1Y</th><th class="n">From 52W high</th></tr>"""
+    cols = [("Company", "t"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"), ("Tech.", "n"),
+            ("LTP ₹", "n"), ("1D", "n"), ("1W", "n"), ("1M", "n"), ("3M", "n"), ("6M", "n"), ("1Y", "n"),
+            ("From 52W high", "n")]
+    head = "<thead><tr>" + "".join(
+        f'<th class="{"n " if k == "n" and c not in ("Label",) else ""}{"s" if k else ""}" data-k="{k}" data-c="{i}">{c}<i></i></th>'
+        for i, (c, k) in enumerate(cols)) + "</tr></thead>"
     tab_btns, tab_panels = [], []
-    for i, tab in enumerate(TABS):
-        sub = df if tab == "All" else df[df["_idx"].apply(lambda x: tab in x)].head(50)
+    scr = df[df["_screened"]]
+    for i, (tab, idx, all_members) in enumerate(VIEW_TABS):
+        if idx is None:
+            sub = scr
+        elif all_members:
+            sub = df[df["_idx"].apply(lambda x: idx in x)]
+        else:
+            sub = scr[scr["_idx"].apply(lambda x: idx in x)].head(50)
         tid = "t" + str(i)
-        note = (f"All {len(sub)} stocks" if tab == "All" else
-                f"Top {len(sub)} {tab} stocks by score (max 50)")
+        note = (f"All {len(sub)} screened stocks" if idx is None else
+                f"All {len(sub)} {idx} stocks, scored (incl. ones not at support)" if all_members else
+                f"Top {len(sub)} {idx} stocks by score (max 50)")
         tab_btns.append(f'<button class="tab{" on" if i == 0 else ""}" data-t="{tid}">{tab} <small>{len(sub)}</small></button>')
         body = "".join(srow(r) for _, r in sub.iterrows()) or '<tr><td colspan="14">No stocks from this index on today\'s list.</td></tr>'
-        tab_panels.append(f'<div class="panel" id="{tid}"{"" if i == 0 else " hidden"}><p class="swipe">{note} · ← swipe sideways · tap a company for details</p><table>{head}{body}</table></div>')
-    summary_html = f'<div class="tabs">{"".join(tab_btns)}</div><div class="box">{"".join(tab_panels)}</div>'
+        tab_panels.append(f'<div class="panel" id="{tid}"{"" if i == 0 else " hidden"}><p class="swipe">{note} · tap a column title to sort · ← swipe sideways</p><table>{head}<tbody>{body}</tbody></table></div>')
+    sort_opts = "".join(f'<option value="{v}">{t}</option>' for v, t in [
+        ("2:d", "Score: high → low"), ("2:a", "Score: low → high"),
+        ("13:a", "Biggest fall from 52W high"), ("9:a", "1M: biggest fall"), ("9:d", "1M: biggest gain"),
+        ("8:a", "1W: biggest fall"), ("7:a", "1D: biggest fall"), ("7:d", "1D: biggest gain"),
+        ("10:a", "3M: biggest fall"), ("12:a", "1Y: biggest fall"), ("12:d", "1Y: biggest gain"),
+        ("4:d", "Fundamentals: high → low"), ("5:d", "Technicals: high → low"), ("0:a", "Company A → Z")])
+    summary_html = (f'<div class="tabs">{"".join(tab_btns)}</div>'
+                    f'<div class="sortbar">Sort by <select id="sortsel">{sort_opts}</select></div>'
+                    f'<div class="box">{"".join(tab_panels)}</div>')
 
     def pills(title, items):
         cells = []
@@ -316,8 +345,9 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
  {pills("Month-wise", r._months)}
 </div>""")
 
-    strong = (df.Label == "Strong setup").sum()
-    watch = (df.Label == "Watch").sum()
+    scr_all = df[df["_screened"]]
+    strong = (scr_all.Label == "Strong setup").sum()
+    watch = (scr_all.Label == "Watch").sum()
     return f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Daily Screening Report — {now:%d %b %Y}</title>
@@ -356,7 +386,12 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .tabs{{display:flex;gap:6px;overflow-x:auto;margin:14px 0 0;padding-bottom:2px;-webkit-overflow-scrolling:touch}}
 .tab{{border:0;background:#e6e9ef;color:#14213d;padding:8px 12px;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}}
 .tab small{{opacity:.7;font-weight:500}} .tab.on{{background:#14213d;color:#fff}}
-.tabs+.box{{margin-top:8px}}
+.sortbar{{margin:8px 2px 0;font-size:13px;color:#444}}
+.sortbar select{{font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid #ccc;background:#fff;margin-left:4px}}
+.sortbar+.box{{margin-top:8px}}
+th.s{{cursor:pointer;user-select:none}} th.s:hover{{background:#e6e9ef}}
+th i{{font-style:normal;font-size:10px;margin-left:3px;color:#14213d}}
+th.asc i:after{{content:"▲"}} th.desc i:after{{content:"▼"}}
 .tv{{font-size:12px;text-decoration:none;white-space:nowrap}}
 .tvbtn{{display:inline-block;margin-top:8px;padding:7px 12px;border-radius:8px;background:#14213d;color:#fff;text-decoration:none;font-size:13px;font-weight:600}}
 @media(max-width:700px){{.wrap{{padding:10px}} .kpis{{display:grid;grid-template-columns:1fr 1fr}}
@@ -368,10 +403,10 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 <div class="sub">Nifty LargeMidcap 250 · stocks at support or near 52-week low · {now:%A, %d %b %Y, %I:%M %p} IST</div></header>
 <div class="wrap">
 <div class="kpis">
- <div class="kpi"><b>{len(df)}</b>stocks screened</div>
+ <div class="kpi"><b>{len(scr_all)}</b>stocks screened</div>
  <div class="kpi"><b style="color:#126b34">{strong}</b>Strong setup (70+)</div>
  <div class="kpi"><b style="color:#9a4b00">{watch}</b>Watch (50–69)</div>
- <div class="kpi"><b style="color:#555">{len(df)-strong-watch}</b>Weak (&lt;50)</div>
+ <div class="kpi"><b style="color:#555">{len(scr_all)-strong-watch}</b>Weak (&lt;50)</div>
 </div>
 {summary_html}
 <p class="disc"><b>How the score works:</b> Fundamentals (50) = ROE, debt/equity, profit growth, sales growth, profit margin.
@@ -381,8 +416,27 @@ Technicals (50) = support held, how often the level held before, RSI, volume on 
 <p class="disc"><b>Disclaimer:</b> {DISCLAIMER}</p>
 </div>
 <script>
+function sortTable(tbl,c,dir){{
+ const tb=tbl.tBodies[0], rows=[...tb.rows], th=tbl.tHead.rows[0].cells[c], num=th.dataset.k==='n';
+ rows.sort((a,b)=>{{
+  let x=a.cells[c]?.dataset.v??'', y=b.cells[c]?.dataset.v??'';
+  if(num){{ x=x===''?NaN:+x; y=y===''?NaN:+y;
+   if(isNaN(x)) return 1; if(isNaN(y)) return -1; return dir==='a'?x-y:y-x; }}
+  return dir==='a'?x.localeCompare(y):y.localeCompare(x);
+ }});
+ rows.forEach(r=>tb.appendChild(r));
+ [...tbl.tHead.rows[0].cells].forEach(h=>h.classList.remove('asc','desc'));
+ th.classList.add(dir==='a'?'asc':'desc');
+}}
+function sortAll(c,dir){{document.querySelectorAll('.panel table').forEach(t=>{{if(t.tBodies[0].rows[0]?.cells.length>1)sortTable(t,c,dir)}});}}
+document.querySelectorAll('th.s').forEach(th=>th.onclick=()=>{{
+ const dir=th.classList.contains('desc')?'a':th.classList.contains('asc')?'d':(th.dataset.k==='n'?'d':'a');
+ sortAll(+th.dataset.c,dir); document.getElementById('sortsel').value='';
+}});
+document.getElementById('sortsel').onchange=e=>{{const [c,d]=e.target.value.split(':'); sortAll(+c,d);}};
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{{
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
  document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==b.dataset.t);
 }});
+sortAll(2,'d');
 </script></body></html>"""

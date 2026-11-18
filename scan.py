@@ -325,7 +325,7 @@ def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFr
         if len(broke):
             lines.append("🔴 Broke: " + ", ".join(broke.Symbol.head(15)))
     if rep is not None and not rep.empty:
-        top = rep[rep.Label == "Strong setup"].head(5)
+        top = rep[(rep.Label == "Strong setup") & rep["_screened"]].head(5)
         if len(top):
             lines.append("\n⭐ Strong setups (score 70+):")
             for _, r in top.iterrows():
@@ -376,7 +376,9 @@ def main():
     (DOCS / "index.html").write_text(build_html(df, new_syms, sup), encoding="utf-8")
 
     # Client screening report (score + returns)
-    rep = report.build(data, cons, df, sup, report.index_membership(cons))
+    mem = report.index_membership(cons)
+    nifty50 = [s for s, ix in mem.items() if "Nifty 50" in ix and s in set(cons["Symbol"])]
+    rep = report.build(data, cons, df, sup, mem, extra=nifty50)
     if not rep.empty:
         (DOCS / "report.html").write_text(report.html(rep, NOW), encoding="utf-8")
         (HIST / f"{NOW:%Y-%m-%d}-report.html").write_text(report.html(rep, NOW), encoding="utf-8")
