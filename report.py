@@ -304,16 +304,16 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     def srow(r):
         return f"""<tr data-s="{r.Symbol}" data-q="{(r.Company + ' ' + r.Symbol).lower()}" data-ltp="{r.LTP}" data-low="{r._dlow}">
 <td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}" title="Add to My stocks">☆</button><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+<td class="n" data-v="{r.LTP}"><b>{r.LTP:,.2f}</b></td>
 <td data-v="{r._tier[0]}"><span class="ix ix{r._tier[0]}">{r._tier[1]}</span></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
 <td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
 <td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td><td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
-<td class="n" data-v="{r.LTP}">{r.LTP:,.2f}</td>
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>"""
 
-    cols = [("Company", "t"), ("Index", "n"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"), ("Tech.", "n"),
-            ("LTP ₹", "n"), ("1D", "n"), ("1W", "n"), ("1M", "n"), ("3M", "n"), ("6M", "n"), ("1Y", "n"),
+    cols = [("Company", "t"), ("LTP ₹", "n"), ("Index", "n"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"),
+            ("Tech.", "n"), ("1D", "n"), ("1W", "n"), ("1M", "n"), ("3M", "n"), ("6M", "n"), ("1Y", "n"),
             ("From 52W high", "n")]
     head = "<thead><tr>" + "".join(
         f'<th class="{"n " if k == "n" and c not in ("Label",) else ""}{"s" if k else ""}" data-k="{k}" data-c="{i}">{c}<i></i></th>'
@@ -349,7 +349,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
 
     watch_syms = list(df[df["_watch"]]["Symbol"])
     tab_btns.insert(0, f'<button class="tab mytab" data-t="tmy">⭐ My stocks <small id="mycount">{len(watch_syms)}</small></button>')
-    my_cols = cols[:1] + [("Target 1", "n"), ("Target 2", "n"), ("Target 3", "n")] + cols[1:]
+    my_cols = cols[:2] + [("Target 1", "n"), ("Target 2", "n"), ("Target 3", "n")] + cols[2:]
     my_head = "<thead><tr>" + "".join(
         f'<th class="{"n " if k == "n" and c not in ("Label",) else ""}{"s" if k else ""}" data-k="{k}" data-c="{i}">{c}<i></i></th>'
         for i, (c, k) in enumerate(my_cols)) + "</tr></thead>"
@@ -360,12 +360,13 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     univ = "".join(srow(r) for _, r in df.iterrows())
     tab_panels.append(f'<table id="univ" hidden><tbody>{univ}</tbody></table>')
     sort_opts = "".join(f'<option value="{v}">{t}</option>' for v, t in [
-        ("3:d", "Score: high → low"), ("3:a", "Score: low → high"),
+        ("4:d", "Score: high → low"), ("4:a", "Score: low → high"),
         ("14:a", "Biggest fall from 52W high"), ("10:a", "1M: biggest fall"), ("10:d", "1M: biggest gain"),
         ("9:a", "1W: biggest fall"), ("8:a", "1D: biggest fall"), ("8:d", "1D: biggest gain"),
         ("11:a", "3M: biggest fall"), ("13:a", "1Y: biggest fall"), ("13:d", "1Y: biggest gain"),
-        ("5:d", "Fundamentals: high → low"), ("6:d", "Technicals: high → low"),
-        ("1:a", "Index: Nifty 50 first"), ("0:a", "Company A → Z")])
+        ("6:d", "Fundamentals: high → low"), ("7:d", "Technicals: high → low"),
+        ("2:a", "Index: Nifty 50 first"), ("1:d", "Price: high → low"), ("1:a", "Price: low → high"),
+        ("0:a", "Company A → Z")])
     summary_html = (f'<script>const WATCH_DEFAULT={_json.dumps(watch_syms)};'
                     f'const TGT_DEFAULT={_json.dumps({r.Symbol: r._targets for _, r in df.iterrows() if r._targets})};</script>'
                     f'<div class="modal" id="tgm" hidden><form class="mbox" id="tgf"><h3 id="tgt">Set targets</h3>'
@@ -465,6 +466,7 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .star{{border:0;background:none;font-size:17px;line-height:1;padding:0 6px 0 0;cursor:pointer;color:#b58900;vertical-align:-1px}}
 .star.on{{color:#e0a800}} .tab.mytab{{background:#fff4cc;color:#7a5d00}} .tab.mytab.on{{background:#e0a800;color:#fff}}
 .empty{{font-size:13px;color:#666;padding:10px}}
+.warn{{background:#fff4cc;color:#7a5d00;border-radius:10px;padding:10px 12px;font-size:13px;margin:12px 0 0}}
 .tg{{white-space:nowrap;cursor:pointer;font-size:12px;line-height:1.25}} .tg small{{display:block;font-size:10.5px}}
 .tg.hit{{background:#dcf5e3;color:#126b34;font-weight:700}} .tg.near{{background:#fff0dc;color:#9a4b00}} .tg.far{{color:#444}}
 .tg.none{{color:#999}} .tg.none span{{border:1px dashed #bbb;border-radius:8px;padding:2px 7px}}
@@ -518,22 +520,31 @@ function sortTable(tbl,c,dir){{
  [...tbl.tHead.rows[0].cells].forEach(h=>h.classList.remove('asc','desc'));
  th.classList.add(dir==='a'?'asc':'desc');
 }}
-let SORT=[3,'d'];
-const mapC=(t,c)=>(+(t.dataset.shift||0)&&c>=1)?c+ +t.dataset.shift:c;
+let SORT=[4,'d'];
+function sget(k,d){{let v=null;try{{v=localStorage.getItem(k)}}catch(e){{}}
+ if(v==null){{const m=document.cookie.match(new RegExp('(?:^|; )'+k+'=([^;]*)'));if(m)v=decodeURIComponent(m[1]);}}
+ try{{return v==null?d:JSON.parse(v)}}catch(e){{return d}}}}
+function sset(k,o){{const v=JSON.stringify(o);try{{localStorage.setItem(k,v)}}catch(e){{}}
+ try{{document.cookie=k+'='+encodeURIComponent(v)+';max-age=31536000;path=/;SameSite=Lax'}}catch(e){{}}}}
+function storeCheck(){{let ok=false;try{{localStorage.setItem('_t','1');ok=localStorage.getItem('_t')==='1';}}catch(e){{}}
+ if(!ok){{const n=document.createElement('p');n.className='warn';
+  n.textContent='⚠️ This browser is not saving your stars/targets (private mode or an in-app browser). Open the link in Chrome or Safari, or ask to add them to the permanent list.';
+  document.querySelector('.search').before(n);}}}}
+const mapC=(t,c)=>(+(t.dataset.shift||0)&&c>=2)?c+ +t.dataset.shift:c;
 function sortAll(c,dir){{SORT=[c,dir];document.querySelectorAll('.panel table').forEach(t=>{{if(t.tBodies[0].rows[0]?.cells.length>1)sortTable(t,mapC(t,c),dir)}});}}
 const UNIV=[...document.querySelectorAll('#univ tbody tr')];
-function getWatch(){{let add=[],rem=[];try{{add=JSON.parse(localStorage.getItem('w_add')||'[]');rem=JSON.parse(localStorage.getItem('w_rem')||'[]')}}catch(e){{}}
+function getWatch(){{const add=sget('w_add',[]),rem=sget('w_rem',[]);
  return new Set([...WATCH_DEFAULT.filter(s=>!rem.includes(s)),...add]);}}
-function setWatch(sym,on){{let add=[],rem=[];try{{add=JSON.parse(localStorage.getItem('w_add')||'[]');rem=JSON.parse(localStorage.getItem('w_rem')||'[]')}}catch(e){{}}
+function setWatch(sym,on){{let add=sget('w_add',[]),rem=sget('w_rem',[]);
  add=add.filter(x=>x!==sym);rem=rem.filter(x=>x!==sym);
  if(on&&!WATCH_DEFAULT.includes(sym))add.push(sym); if(!on&&WATCH_DEFAULT.includes(sym))rem.push(sym);
- try{{localStorage.setItem('w_add',JSON.stringify(add));localStorage.setItem('w_rem',JSON.stringify(rem))}}catch(e){{}}
+ sset('w_add',add);sset('w_rem',rem);
  renderMy(); paintStars();}}
 const BYSYM={{}};
 function fill(id,rows,tg){{const tb=document.querySelector('#'+id+' tbody');tb.innerHTML='';
  rows.forEach(r=>{{const n=r.cloneNode(true); if(tg)addTargets(n); tb.appendChild(n);}});
  const t=tb.closest('table'); if(tb.rows.length)sortTable(t,mapC(t,SORT[0]),SORT[1]); bindStars(tb);}}
-function getTg(){{let o={{}};try{{o=JSON.parse(localStorage.getItem('tg')||'{{}}')}}catch(e){{}}return o;}}
+function getTg(){{return sget('tg',{{}});}}
 function tgFor(s){{const o=getTg();return o[s]!==undefined?o[s]:(TGT_DEFAULT[s]||[]);}}
 const inr=v=>'₹'+(+v).toLocaleString('en-IN',{{maximumFractionDigits:2}});
 function tcell(t,ltp,low){{const td=document.createElement('td');td.className='tg';
@@ -541,13 +552,13 @@ function tcell(t,ltp,low){{const td=document.createElement('td');td.className='t
  if(low<=t){{td.classList.add('hit');td.dataset.v='-1';td.innerHTML=inr(t)+'<small>✅ Reached</small>';return td;}}
  const d=(ltp-t)/ltp;td.dataset.v=d.toFixed(6);td.classList.add(d<=0.03?'near':'far');
  td.innerHTML=inr(t)+'<small>'+(d*100).toFixed(1)+'% away</small>';return td;}}
-function addTargets(tr){{const t=tgFor(tr.dataset.s),ltp=+tr.dataset.ltp,low=+tr.dataset.low,first=tr.cells[0];
+function addTargets(tr){{const t=tgFor(tr.dataset.s),ltp=+tr.dataset.ltp,low=+tr.dataset.low,first=tr.cells[1];
  [2,1,0].forEach(i=>{{const td=tcell(t[i],ltp,low);td.onclick=()=>openTg(tr.dataset.s);first.after(td);}});}}
 function openTg(s){{const t=tgFor(s),r=BYSYM[s];document.getElementById('tgm').hidden=false;document.getElementById('tgm').dataset.s=s;
  document.getElementById('tgt').textContent='Targets · '+s;
  document.getElementById('tgsub').textContent='Current price '+inr(r.dataset.ltp)+' · reached when the price falls to the target';
  [1,2,3].forEach(i=>document.getElementById('tg'+i).value=t[i-1]||'');}}
-function saveTg(s,v){{const o=getTg();o[s]=v;try{{localStorage.setItem('tg',JSON.stringify(o))}}catch(e){{}}document.getElementById('tgm').hidden=true;renderMy();}}
+function saveTg(s,v){{const o=getTg();o[s]=v;sset('tg',o);document.getElementById('tgm').hidden=true;renderMy();}}
 function renderMy(){{const w=getWatch();const rows=UNIV.filter(r=>w.has(r.dataset.s));fill('tmy',rows,true);
  document.getElementById('mycount').textContent=rows.length;document.getElementById('myempty').hidden=rows.length>0;}}
 function paintStars(){{const w=getWatch();document.querySelectorAll('.star').forEach(b=>{{const on=w.has(b.dataset.s);b.textContent=on?'⭐':'☆';b.classList.toggle('on',on);}});}}
@@ -577,5 +588,5 @@ document.querySelectorAll('.tab,.stab').forEach(b=>b.onclick=()=>{{lastTab=b.dat
 UNIV.forEach(r=>BYSYM[r.dataset.s]=r);
 document.querySelectorAll('.panel[data-syms]').forEach(p=>{{const rows=JSON.parse(p.dataset.syms).map(s=>BYSYM[s]).filter(Boolean);
  if(rows.length)fill(p.id,rows); else p.querySelector('tbody').innerHTML='<tr><td colspan="15">'+p.dataset.empty+'</td></tr>';}});
-bindStars(document);renderMy();sortAll(3,'d');paintStars();
+bindStars(document);renderMy();sortAll(4,'d');paintStars();storeCheck();
 </script></body></html>"""
