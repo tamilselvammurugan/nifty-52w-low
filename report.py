@@ -26,11 +26,22 @@ INDEX_LISTS = {
     "Nifty 50": "https://www.niftyindices.com/IndexConstituent/ind_nifty50list.csv",
     "Nifty Next 50": "https://www.niftyindices.com/IndexConstituent/ind_niftynext50list.csv",
     "Nifty 200": "https://www.niftyindices.com/IndexConstituent/ind_nifty200list.csv",
+    "Nifty 500": "https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv",
 }
-TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
+TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200", "Nifty 500"]
 INDEX_NAMES = TABS[1:]
 # tab: (label, index filter, include all constituents?)
-MAIN_TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200"]
+MAIN_TABS = ["All", "Nifty 50", "Nifty Next 50", "Nifty 100", "Midcap 150", "Nifty 200", "Nifty 500"]
+TIERS = ["Nifty 50", "Nifty Next 50", "Nifty 200", "Nifty 500"]
+
+
+def index_tier(idx: set) -> tuple[int, str]:
+    for i, t in enumerate(TIERS):
+        if t in idx:
+            return i, t
+    if "Midcap 150" in idx or "Nifty 100" in idx:
+        return 3, "Nifty 500"
+    return 9, "Not in Nifty 500"
 
 
 def index_membership(cons: pd.DataFrame) -> dict:
@@ -215,7 +226,7 @@ def label(score):
 
 # ---------------- build ----------------
 def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None,
-          extra=None, watch=None) -> pd.DataFrame:
+          extra=None, watch=None, core=None) -> pd.DataFrame:
     mem = mem or {}
     watch = list(watch or [])
     screened = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
@@ -250,7 +261,9 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
             "Support": srow.get("Support") if srow else None,
             "Support status": srow.get("Status") if srow else "",
             "Near 52W low": s in near,
-            "_screened": s in scr_set,
+            "_hit": s in scr_set,
+            "_screened": s in scr_set and (core is None or s in core),
+            "_tier": index_tier(mem.get(s, set())),
             "Indices": ", ".join(t for t in INDEX_NAMES if t in mem.get(s, set())),
             "_idx": mem.get(s, set()),
             **{k: ret[k] for k in ["1D", "1W", "1M", "3M", "6M", "1Y", "From 52W high"]},
@@ -288,6 +301,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     def srow(r):
         return f"""<tr data-s="{r.Symbol}" data-q="{(r.Company + ' ' + r.Symbol).lower()}">
 <td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}" title="Add to My stocks">☆</button><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+<td data-v="{r._tier[0]}"><span class="ix ix{r._tier[0]}">{r._tier[1]}</span></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
 <td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
 <td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td><td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
@@ -295,7 +309,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>"""
 
-    cols = [("Company", "t"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"), ("Tech.", "n"),
+    cols = [("Company", "t"), ("Index", "n"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"), ("Tech.", "n"),
             ("LTP ₹", "n"), ("1D", "n"), ("1W", "n"), ("1M", "n"), ("3M", "n"), ("6M", "n"), ("1Y", "n"),
             ("From 52W high", "n")]
     head = "<thead><tr>" + "".join(
@@ -304,10 +318,14 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     tab_btns, tab_panels, sub_bars = [], [], []
     scr = df[df["_screened"]]
 
+    import json as _json
+    import html as _h
+
     def panel(pid, sub, note, hidden=True, empty="No stocks here today."):
-        body = "".join(srow(r) for _, r in sub.iterrows()) or f'<tr><td colspan="14">{empty}</td></tr>'
-        return (f'<div class="panel" id="{pid}"{" hidden" if hidden else ""}><p class="swipe">{note} · tap a column '
-                f'title to sort · ← swipe sideways</p><table>{head}<tbody>{body}</tbody></table></div>')
+        syms = _h.escape(_json.dumps(list(sub["Symbol"])))
+        return (f'<div class="panel" id="{pid}"{" hidden" if hidden else ""} data-syms="{syms}" '
+                f'data-empty="{_h.escape(empty)}"><p class="swipe">{note} · tap a column '
+                f'title to sort · ← swipe sideways</p><table>{head}<tbody></tbody></table></div>')
 
     for i, tab in enumerate(MAIN_TABS):
         tid = "t" + str(i)
@@ -316,7 +334,8 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
             tab_panels.append(panel(tid, scr, f"All {len(scr)} stocks at support or near 52-week low", hidden=False))
             continue
         members = df[df["_idx"].apply(lambda x, t=tab: t in x)]
-        top = scr[scr["_idx"].apply(lambda x, t=tab: t in x)].head(50)
+        hits = df[df["_hit"]]
+        top = hits[hits["_idx"].apply(lambda x, t=tab: t in x)].head(50)
         tab_btns.append(f'<button class="tab" data-t="{tid}a" data-sub="{tid}">{tab} <small>{len(members)}</small></button>')
         sub_bars.append(f'<div class="subtabs" id="{tid}" hidden>'
                         f'<button class="stab on" data-t="{tid}a">{tab} <small>{len(members)}</small></button>'
@@ -334,12 +353,12 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     univ = "".join(srow(r) for _, r in df.iterrows())
     tab_panels.append(f'<table id="univ" hidden><tbody>{univ}</tbody></table>')
     sort_opts = "".join(f'<option value="{v}">{t}</option>' for v, t in [
-        ("2:d", "Score: high → low"), ("2:a", "Score: low → high"),
-        ("13:a", "Biggest fall from 52W high"), ("9:a", "1M: biggest fall"), ("9:d", "1M: biggest gain"),
-        ("8:a", "1W: biggest fall"), ("7:a", "1D: biggest fall"), ("7:d", "1D: biggest gain"),
-        ("10:a", "3M: biggest fall"), ("12:a", "1Y: biggest fall"), ("12:d", "1Y: biggest gain"),
-        ("4:d", "Fundamentals: high → low"), ("5:d", "Technicals: high → low"), ("0:a", "Company A → Z")])
-    import json as _json
+        ("3:d", "Score: high → low"), ("3:a", "Score: low → high"),
+        ("14:a", "Biggest fall from 52W high"), ("10:a", "1M: biggest fall"), ("10:d", "1M: biggest gain"),
+        ("9:a", "1W: biggest fall"), ("8:a", "1D: biggest fall"), ("8:d", "1D: biggest gain"),
+        ("11:a", "3M: biggest fall"), ("13:a", "1Y: biggest fall"), ("13:d", "1Y: biggest gain"),
+        ("5:d", "Fundamentals: high → low"), ("6:d", "Technicals: high → low"),
+        ("1:a", "Index: Nifty 50 first"), ("0:a", "Company A → Z")])
     summary_html = (f'<script>const WATCH_DEFAULT={_json.dumps(watch_syms)};</script>'
                     f'<div class="search"><input id="q" type="search" placeholder="🔍 Search any stock (name or symbol)…" autocomplete="off"></div>'
                     f'<div class="tabs">{"".join(tab_btns)}</div>{"".join(sub_bars)}'
@@ -431,6 +450,9 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .star{{border:0;background:none;font-size:17px;line-height:1;padding:0 6px 0 0;cursor:pointer;color:#b58900;vertical-align:-1px}}
 .star.on{{color:#e0a800}} .tab.mytab{{background:#fff4cc;color:#7a5d00}} .tab.mytab.on{{background:#e0a800;color:#fff}}
 .empty{{font-size:13px;color:#666;padding:10px}}
+.ix{{font-size:11px;font-weight:600;padding:2px 7px;border-radius:9px;white-space:nowrap}}
+.ix0{{background:#dbe7ff;color:#1d3f8f}} .ix1{{background:#e5dcff;color:#4b2a8f}}
+.ix2{{background:#d9f2ef;color:#0f5f56}} .ix3{{background:#eceff3;color:#3b4554}} .ix9{{background:#fff;color:#888;border:1px solid #ddd}}
 .sortbar select{{font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid #ccc;background:#fff;margin-left:4px}}
 .sortbar+.box{{margin-top:8px}}
 th.s{{cursor:pointer;user-select:none}} th.s:hover{{background:#e6e9ef}}
@@ -472,7 +494,7 @@ function sortTable(tbl,c,dir){{
  [...tbl.tHead.rows[0].cells].forEach(h=>h.classList.remove('asc','desc'));
  th.classList.add(dir==='a'?'asc':'desc');
 }}
-let SORT=[2,'d'];
+let SORT=[3,'d'];
 function sortAll(c,dir){{SORT=[c,dir];document.querySelectorAll('.panel table').forEach(t=>{{if(t.tBodies[0].rows[0]?.cells.length>1)sortTable(t,c,dir)}});}}
 const UNIV=[...document.querySelectorAll('#univ tbody tr')];
 function getWatch(){{let add=[],rem=[];try{{add=JSON.parse(localStorage.getItem('w_add')||'[]');rem=JSON.parse(localStorage.getItem('w_rem')||'[]')}}catch(e){{}}
@@ -482,6 +504,7 @@ function setWatch(sym,on){{let add=[],rem=[];try{{add=JSON.parse(localStorage.ge
  if(on&&!WATCH_DEFAULT.includes(sym))add.push(sym); if(!on&&WATCH_DEFAULT.includes(sym))rem.push(sym);
  try{{localStorage.setItem('w_add',JSON.stringify(add));localStorage.setItem('w_rem',JSON.stringify(rem))}}catch(e){{}}
  renderMy(); paintStars();}}
+const BYSYM={{}};
 function fill(id,rows){{const tb=document.querySelector('#'+id+' tbody');tb.innerHTML='';rows.forEach(r=>tb.appendChild(r.cloneNode(true)));
  const t=tb.closest('table'); if(tb.rows.length)sortTable(t,SORT[0],SORT[1]); bindStars(tb);}}
 function renderMy(){{const w=getWatch();const rows=UNIV.filter(r=>w.has(r.dataset.s));fill('tmy',rows);
@@ -506,5 +529,8 @@ document.querySelectorAll('th.s').forEach(th=>th.onclick=()=>{{
 }});
 document.getElementById('sortsel').onchange=e=>{{const [c,d]=e.target.value.split(':'); sortAll(+c,d);}};
 document.querySelectorAll('.tab,.stab').forEach(b=>b.onclick=()=>{{lastTab=b.dataset.t;document.getElementById('q').value='';show(b.dataset.t);}});
-bindStars(document);renderMy();sortAll(2,'d');paintStars();
+UNIV.forEach(r=>BYSYM[r.dataset.s]=r);
+document.querySelectorAll('.panel[data-syms]').forEach(p=>{{const rows=JSON.parse(p.dataset.syms).map(s=>BYSYM[s]).filter(Boolean);
+ if(rows.length)fill(p.id,rows); else p.querySelector('tbody').innerHTML='<tr><td colspan="15">'+p.dataset.empty+'</td></tr>';}});
+bindStars(document);renderMy();sortAll(3,'d');paintStars();
 </script></body></html>"""

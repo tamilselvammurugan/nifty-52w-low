@@ -347,12 +347,24 @@ def main():
 
     cons = get_constituents()
     print(f"{len(cons)} constituents")
+    # Nifty 500 universe for the report (screening lists below stay on LargeMidcap 250)
+    try:
+        n500 = fetch_csv("https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv")
+        n500 = n500.rename(columns={"Company Name": "Company"})[["Symbol", "Company"]]
+        n500["Segment"] = "Nifty 500"
+        (Path(__file__).parent / "nifty500.csv").write_text(n500.to_csv(index=False))
+    except Exception as e:
+        print(f"Nifty 500 list failed ({e}); using saved copy if any")
+        f500 = Path(__file__).parent / "nifty500.csv"
+        n500 = pd.read_csv(f500) if f500.exists() else pd.DataFrame(columns=["Symbol", "Company", "Segment"])
+    univ = pd.concat([cons, n500[~n500["Symbol"].isin(cons["Symbol"])]], ignore_index=True)
+
     wl_file = Path(__file__).parent / "watchlist.txt"
     watch = [l.split("#")[0].strip().upper() for l in wl_file.read_text().splitlines()] if wl_file.exists() else []
     watch = [w for w in watch if w]
     extra_rows = pd.DataFrame([{"Symbol": w, "Company": "", "Segment": "My stocks"}
-                               for w in watch if w not in set(cons["Symbol"])])
-    dl_cons = pd.concat([cons, extra_rows], ignore_index=True) if len(extra_rows) else cons
+                               for w in watch if w not in set(univ["Symbol"])])
+    dl_cons = pd.concat([univ, extra_rows], ignore_index=True) if len(extra_rows) else univ
     data = download(dl_cons)
     df = scan(cons, data)
     sup = support_scan(cons, data)
@@ -382,9 +394,11 @@ def main():
     (DOCS / "index.html").write_text(build_html(df, new_syms, sup), encoding="utf-8")
 
     # Client screening report (score + returns)
-    mem = report.index_membership(cons)
-    rep_cons = dl_cons
-    rep = report.build(data, rep_cons, df, sup, mem, extra=list(cons["Symbol"]), watch=watch)
+    mem = report.index_membership(dl_cons)
+    df_u = scan(univ, data)            # 52W-low + support across Nifty 500 for the report
+    sup_u = support_scan(univ, data)
+    rep = report.build(data, dl_cons, df_u, sup_u, mem, extra=list(univ["Symbol"]), watch=watch,
+                       core=set(cons["Symbol"]))
     if not rep.empty:
         page = report.html(rep, NOW)
         pw = os.getenv("REPORT_PASSWORD", "")
