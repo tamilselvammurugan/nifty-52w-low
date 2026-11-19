@@ -78,8 +78,33 @@ def get_constituents() -> pd.DataFrame:
 
 def download(cons: pd.DataFrame):
     tickers = [f"{s}.NS" for s in cons["Symbol"]]
-    return yf.download(tickers, period="1y", interval="1d", group_by="ticker",
-                       auto_adjust=False, threads=True, progress=False)
+    parts = []
+    for i in range(0, len(tickers), 300):
+        chunk = tickers[i:i + 300]
+        df = yf.download(chunk, period="1y", interval="1d", group_by="ticker",
+                         auto_adjust=False, threads=True, progress=False)
+        if len(chunk) == 1 and not isinstance(df.columns, pd.MultiIndex):
+            df = pd.concat({chunk[0]: df}, axis=1)
+        parts.append(df)
+    return pd.concat(parts, axis=1) if len(parts) > 1 else parts[0]
+
+
+def get_all_nse() -> pd.DataFrame:
+    """All NSE equity stocks (EQ/BE/BZ series). Saved copy is used if NSE blocks the download."""
+    f = DOCS / "nse_all.csv"
+    for url in ["https://nsearchives.nseindia.com/content/equities/EQUITY_L.csv",
+                "https://archives.nseindia.com/content/equities/EQUITY_L.csv"]:
+        try:
+            df = fetch_csv(url)
+            df.columns = [c.strip() for c in df.columns]
+            df = df[df["SERIES"].str.strip().isin(["EQ", "BE", "BZ"])]
+            df = df.rename(columns={"SYMBOL": "Symbol", "NAME OF COMPANY": "Company"})[["Symbol", "Company"]]
+            df["Segment"] = "NSE"
+            df.to_csv(f, index=False)
+            return df
+        except Exception as e:
+            print(f"NSE equity list failed from {url}: {e}", file=sys.stderr)
+    return pd.read_csv(f) if f.exists() else pd.DataFrame(columns=["Symbol", "Company", "Segment"])
 
 
 # ---------- Support detection ----------
@@ -329,7 +354,7 @@ def send_telegram(df: pd.DataFrame, new_syms: set, page_url: str, sup: pd.DataFr
         if len(top):
             lines.append("\n⭐ Strong setups (score 70+):")
             for _, r in top.iterrows():
-                lines.append(f"• {r.Symbol} {r.Score}/100 | 1M {r['1M']*100:+.1f}% | from 52W high {r['From 52W high']*100:+.1f}%")
+                lines.append(f"• {r.Symbol} {int(r.Score)}/100 | 1M {r['1M']*100:+.1f}% | from 52W high {r['From 52W high']*100:+.1f}%")
         else:
             lines.append("\n⭐ No stock scored 70+ today")
     if rep is not None and not rep.empty and "_targets" in rep:
@@ -367,6 +392,9 @@ def main():
         f500 = Path(__file__).parent / "nifty500.csv"
         n500 = pd.read_csv(f500) if f500.exists() else pd.DataFrame(columns=["Symbol", "Company", "Segment"])
     univ = pd.concat([cons, n500[~n500["Symbol"].isin(cons["Symbol"])]], ignore_index=True)
+    nse_all = get_all_nse()
+    rest_nse = nse_all[~nse_all["Symbol"].isin(univ["Symbol"])]
+    print(f"All NSE list: {len(nse_all)} stocks ({len(rest_nse)} outside Nifty 500)")
 
     wl_file = Path(__file__).parent / "watchlist.txt"
     watch, targets = [], {}
@@ -386,7 +414,8 @@ def main():
             targets[sym] = tg
     extra_rows = pd.DataFrame([{"Symbol": w, "Company": "", "Segment": "My stocks"}
                                for w in watch if w not in set(univ["Symbol"])])
-    dl_cons = pd.concat([univ, extra_rows], ignore_index=True) if len(extra_rows) else univ
+    extra_rows = extra_rows[~extra_rows["Symbol"].isin(rest_nse["Symbol"])] if len(extra_rows) else extra_rows
+    dl_cons = pd.concat([univ, extra_rows, rest_nse], ignore_index=True)
     data = download(dl_cons)
     df = scan(cons, data)
     sup = support_scan(cons, data)
@@ -420,7 +449,8 @@ def main():
     df_u = scan(univ, data)            # 52W-low + support across Nifty 500 for the report
     sup_u = support_scan(univ, data)
     rep = report.build(data, dl_cons, df_u, sup_u, mem, extra=list(univ["Symbol"]), watch=watch,
-                       core=set(cons["Symbol"]), targets=targets)
+                       core=set(cons["Symbol"]), targets=targets,
+                       light=list(rest_nse["Symbol"]))
     if not rep.empty:
         page = report.html(rep, NOW)
         pw = os.getenv("REPORT_PASSWORD", "")

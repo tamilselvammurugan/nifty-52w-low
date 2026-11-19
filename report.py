@@ -233,8 +233,16 @@ def _num(v):
         return None
 
 
-def add_valuation(df: pd.DataFrame) -> pd.DataFrame:
+def add_valuation(df_all: pd.DataFrame) -> pd.DataFrame:
     """Relative valuation: PE and P/B vs the median of the same industry (or sector) in the universe."""
+    lightmask = df_all["_light"] if "_light" in df_all else pd.Series(False, index=df_all.index)
+    df = df_all[~lightmask]
+    rest = df_all[lightmask].copy()
+    if len(rest):
+        rest["Valuation"], rest["_vratio"], rest["Fair value"], rest["_vupside"] = "–", None, None, None
+        rest["_vwhy"] = [{} for _ in range(len(rest))]
+    if df.empty:
+        return rest
     pe, pb, grp_ind, grp_sec = [], [], [], []
     for s in df["Symbol"]:
         info = get_info(s)
@@ -290,27 +298,33 @@ def add_valuation(df: pd.DataFrame) -> pd.DataFrame:
     df["Fair value"] = [o[2] for o in out]
     df["_vupside"] = [o[3] for o in out]
     df["_vwhy"] = [o[4] for o in out]
-    return df
+    return pd.concat([df, rest]) if len(rest) else df
 
 
 def _vcell(r):
     lbl, ratio = r.Valuation, r._vratio
     cls = {"Undervalued": "vu", "Fair": "vf", "Overvalued": "vo"}.get(lbl, "vn")
+    if lbl == "–":
+        return '<td class="val vn" data-v="">–</td>'
     sub = (f"<small>Fair ≈ ₹{r['Fair value']:,.0f} ({r._vupside*100:+.0f}%)</small>"
-           if r["Fair value"] == r["Fair value"] and r["Fair value"] else "")
+           if r["Fair value"] is not None and r["Fair value"] == r["Fair value"] and r["Fair value"] else "")
     v = "" if ratio is None or ratio != ratio else f"{ratio:.4f}"
     return f'<td class="val {cls}" data-v="{v}"><b>{lbl}</b>{sub}</td>'
 
 
 # ---------------- build ----------------
 def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None,
-          extra=None, watch=None, core=None, targets=None) -> pd.DataFrame:
+          extra=None, watch=None, core=None, targets=None, light=None) -> pd.DataFrame:
+    """light: extra symbols shown with price/returns/technicals only (no fundamentals/valuation)."""
     targets = targets or {}
+    light = [x for x in (light or [])]
     mem = mem or {}
     watch = list(watch or [])
     screened = list(dict.fromkeys(list(sup["Symbol"]) + list(near_low["Symbol"])))
     scr_set = set(screened)
     syms = list(dict.fromkeys(screened + watch + list(extra or [])))
+    full_set = set(syms)
+    syms = syms + [x for x in dict.fromkeys(light) if x not in full_set]
     sup_map = {row["Symbol"]: row for row in sup.to_dict("records")} if len(sup) else {}
     names = dict(zip(cons["Symbol"], cons["Company"]))
     seg = dict(zip(cons["Symbol"], cons["Segment"]))
@@ -324,21 +338,26 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
             continue
         if len(d) < 60:
             continue
+        is_light = s not in full_set
         srow = sup_map.get(s)
         t, twhy = tech_score(d, srow)
-        f, fwhy = fund_score(s)
+        if is_light:
+            f, fwhy = None, {"Note": "Fundamentals not scored (outside Nifty 500 / watchlist)"}
+        else:
+            f, fwhy = fund_score(s)
         ret = returns_block(d)
-        score = t + f
+        score = None if is_light else t + f
         rows.append({
             "Symbol": s,
             "Company": (names.get(s) if isinstance(names.get(s), str) and names.get(s) else
-                        get_info(s).get("longName") or get_info(s).get("shortName") or s),
+                        s if is_light else get_info(s).get("longName") or get_info(s).get("shortName") or s),
+            "_light": is_light,
             "Segment": seg.get(s) or "Other NSE",
             "_watch": s in watch,
             "_targets": targets.get(s, []),
             "_dlow": round(float(d["Low"].iloc[-1]), 2),
             "LTP": round(float(d["Close"].iloc[-1]), 2),
-            "Score": score, "Fundamental": f, "Technical": t, "Label": label(score),
+            "Score": score, "Fundamental": f, "Technical": t, "Label": label(score) if score is not None else "",
             "Support": srow.get("Support") if srow else None,
             "Support status": srow.get("Status") if srow else "",
             "Near 52W low": s in near,
@@ -356,22 +375,18 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
         df = add_valuation(df)
     if df.empty:
         return df
-    return df.sort_values("Score", ascending=False).reset_index(drop=True)
+    df["Score"] = df["Score"].astype("Int64")
+    df["Fundamental"] = df["Fundamental"].astype("Int64")
+    df["_sortscore"] = df["Score"].fillna(-1)
+    return df.sort_values(["_sortscore", "Technical"], ascending=False).reset_index(drop=True)
 
 
 # ---------------- HTML ----------------
 def _pc(v, bold_big=True):
     if v is None or (isinstance(v, float) and math.isnan(v)):
         return '<td class="n" data-v="">–</td>'
-    if v <= -0.05:
-        bg, fg, b = "#f5b5b5", "#7f1010", "font-weight:700"
-    elif v < 0:
-        bg, fg, b = "#fde2e1", "#9b1c1c", ""
-    elif v > 0:
-        bg, fg, b = "#dcf5e3", "#126b34", ""
-    else:
-        bg, fg, b = "transparent", "inherit", ""
-    return f'<td class="n" data-v="{v:.6f}" style="background:{bg};color:{fg};{b}">{v*100:+.1f}%</td>'
+    c = "d2" if v <= -0.05 else "d1" if v < 0 else "u1" if v > 0 else ""
+    return f'<td class="n {c}" data-v="{v:.5f}">{v*100:+.1f}%</td>'
 
 
 def _chip(lbl):
@@ -380,16 +395,22 @@ def _chip(lbl):
     return f'<span class="chip" style="background:{c[0]};color:{c[1]}">{lbl}</span>'
 
 
+def _scorecells(r):
+    if r._light:
+        return '<td class="n" data-v="">–</td><td data-v="">–</td><td class="n" data-v="">–</td>'
+    return (f'<td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>'
+            f'<td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td>')
+
+
 def html(df: pd.DataFrame, now: dt.datetime) -> str:
     def srow(r):
         return f"""<tr data-s="{r.Symbol}" data-q="{(r.Company + ' ' + r.Symbol).lower()}" data-ltp="{r.LTP}" data-low="{r._dlow}">
-<td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}" title="Add to My stocks">☆</button><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
+<td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}">☆</button><a href="{tv_url(r.Symbol) if r._light else "#" + r.Symbol}"{' target="_blank" rel="noopener"' if r._light else ""}>{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
 <td class="n" data-v="{r.LTP}"><b>{r.LTP:,.2f}</b></td>
 {_vcell(r)}
 <td data-v="{r._tier[0]}"><span class="ix ix{r._tier[0]}">{r._tier[1]}</span></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
-<td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
-<td class="n" data-v="{r.Fundamental}">{r.Fundamental}/50</td><td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
+{_scorecells(r)}<td class="n" data-v="{r.Technical}">{r.Technical}/50</td>
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>"""
 
@@ -414,8 +435,13 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     for i, tab in enumerate(MAIN_TABS):
         tid = "t" + str(i)
         if tab == "All":
-            tab_btns.append(f'<button class="tab on" data-t="{tid}">All <small>{len(scr)}</small></button>')
-            tab_panels.append(panel(tid, scr, f"All {len(scr)} stocks at support or near 52-week low", hidden=False))
+            tab_btns.append(f'<button class="tab on" data-t="{tid}a" data-sub="{tid}">All NSE <small>{len(df)}</small></button>')
+            sub_bars.append(f'<div class="subtabs" id="{tid}">'
+                            f'<button class="stab on" data-t="{tid}a">All NSE <small>{len(df)}</small></button>'
+                            f'<button class="stab" data-t="{tid}b">Top by score <small>{len(scr)}</small></button></div>')
+            tab_panels.append(panel(f"{tid}a", df, f"All {len(df)} NSE stocks · full score & valuation for Nifty 500 + "
+                                                   f"watchlist, price & technicals for the rest", hidden=False))
+            tab_panels.append(panel(f"{tid}b", scr, f"Top 250 stocks at support or near 52-week low, by score"))
             continue
         members = df[df["_idx"].apply(lambda x, t=tab: t in x)]
         hits = df[df["_hit"]]
@@ -474,7 +500,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
         return f'<div class="prow"><div class="ptitle">{title}</div><div class="pills">{"".join(cells)}</div></div>'
 
     cards = []
-    for _, r in df.iterrows():
+    for _, r in df[~df["_light"]].iterrows():
         f = "".join(f"<li><b>{k}:</b> {v}</li>" for k, v in r._fwhy.items())
         t = "".join(f"<li><b>{k}:</b> {v}</li>" for k, v in r._twhy.items())
         sup = (f"Support ₹{r.Support:,.2f} — {r['Support status']}" if r.Support else
@@ -562,6 +588,7 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .mbox input{{width:130px;font-size:16px;padding:8px;border:1px solid #ccc;border-radius:8px}}
 .mbtn{{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}} .mbtn button{{border:0;border-radius:8px;padding:9px 14px;font-size:14px;background:#eee;cursor:pointer}}
 .mbtn .pri{{background:#14213d;color:#fff}}
+.d2{{background:#f5b5b5;color:#7f1010;font-weight:700}} .d1{{background:#fde2e1;color:#9b1c1c}} .u1{{background:#dcf5e3;color:#126b34}}
 .val{{white-space:nowrap;font-size:12px;line-height:1.25}} .val small{{display:block;font-size:10.5px;font-weight:400}}
 .val.vu{{background:#dcf5e3;color:#126b34}} .val.vo{{background:#fde2e1;color:#9b1c1c}} .val.vf{{color:#444}} .val.vn{{color:#999}}
 .ix{{font-size:11px;font-weight:600;padding:2px 7px;border-radius:9px;white-space:nowrap}}
@@ -659,11 +686,11 @@ function show(id){{
  document.querySelectorAll('.subtabs').forEach(b=>b.hidden=b.id!==main);
  document.querySelectorAll('.stab').forEach(x=>x.classList.toggle('on',x.dataset.t===id));
  document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==id);}}
-let lastTab='t0';
+let lastTab='t0a';
 document.getElementById('q').oninput=e=>{{const q=e.target.value.trim().toLowerCase();
  if(!q){{show(lastTab);return;}}
- const rows=UNIV.filter(r=>r.dataset.q.includes(q)).slice(0,50); fill('tsearch',rows);
- document.getElementById('snote').textContent=rows.length?`${{rows.length}} match(es) for "${{q}}" · tap ☆ to add to My stocks`:`No match for "${{q}}". Only the Top 250 + your watchlist are in this report.`;
+ const rows=UNIV.filter(r=>r.dataset.q.includes(q)).slice(0,100); fill('tsearch',rows);
+ document.getElementById('snote').textContent=rows.length?`${{rows.length}} match(es) for "${{q}}" · tap ☆ to add to My stocks`:`No NSE stock matches "${{q}}". Try the NSE symbol, or ask to add a BSE-only stock to your watchlist.`;
  show('tsearch'); paintStars();}};
 document.querySelectorAll('th.s').forEach(th=>th.onclick=()=>{{
  const dir=th.classList.contains('desc')?'a':th.classList.contains('asc')?'d':(th.dataset.k==='n'?'d':'a');
