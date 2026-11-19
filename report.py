@@ -224,6 +224,84 @@ def label(score):
     return "Weak"
 
 
+# ---------------- valuation ----------------
+def _num(v):
+    try:
+        v = float(v)
+        return v if math.isfinite(v) else None
+    except (TypeError, ValueError):
+        return None
+
+
+def add_valuation(df: pd.DataFrame) -> pd.DataFrame:
+    """Relative valuation: PE and P/B vs the median of the same industry (or sector) in the universe."""
+    pe, pb, grp_ind, grp_sec = [], [], [], []
+    for s in df["Symbol"]:
+        info = get_info(s)
+        p = _num(info.get("trailingPE"))
+        b = _num(info.get("priceToBook"))
+        pe.append(p if p and 0 < p < 300 else None)
+        pb.append(b if b and 0 < b < 100 else None)
+        grp_ind.append(info.get("industry") or "")
+        grp_sec.append(info.get("sector") or "")
+    df = df.copy()
+    df["_pe"], df["_pb"], df["_ind"], df["_sec"] = pe, pb, grp_ind, grp_sec
+
+    def medians(col, key):
+        return df.groupby(key)[col].agg(["median", "count"])
+
+    ind_pe, sec_pe = medians("_pe", "_ind"), medians("_pe", "_sec")
+    ind_pb, sec_pb = medians("_pb", "_ind"), medians("_pb", "_sec")
+
+    def peer(table_ind, table_sec, ind, sec):
+        if ind and ind in table_ind.index and table_ind.loc[ind, "count"] >= 5:
+            return table_ind.loc[ind, "median"], ind
+        if sec and sec in table_sec.index and table_sec.loc[sec, "count"] >= 3:
+            return table_sec.loc[sec, "median"], sec
+        return None, None
+
+    out = []
+    for _, r in df.iterrows():
+        info = get_info(r.Symbol)
+        eps = _num(info.get("trailingEps"))
+        if eps is not None and eps <= 0:
+            out.append(("Loss-making", None, None, None, {"Note": "Negative earnings - PE not meaningful"}))
+            continue
+        mpe, g1 = peer(ind_pe, sec_pe, r._ind, r._sec)
+        mpb, g2 = peer(ind_pb, sec_pb, r._ind, r._sec)
+        ratios = []
+        why = {}
+        if r._pe and mpe:
+            ratios.append(r._pe / mpe)
+            why["PE"] = f"{r._pe:.1f} vs peers {mpe:.1f}"
+        if r._pb and mpb:
+            ratios.append(r._pb / mpb)
+            why["P/B"] = f"{r._pb:.2f} vs peers {mpb:.2f}"
+        if not ratios:
+            out.append(("N/A", None, None, None, {"Note": "Not enough data"}))
+            continue
+        ratio = sum(ratios) / len(ratios)
+        fair = r.LTP / ratio
+        lbl = "Undervalued" if ratio <= 0.8 else "Overvalued" if ratio >= 1.25 else "Fair"
+        why["Peers"] = g1 or g2 or ""
+        out.append((lbl, round(ratio, 3), round(fair, 2), fair / r.LTP - 1, why))
+    df["Valuation"] = [o[0] for o in out]
+    df["_vratio"] = [o[1] for o in out]
+    df["Fair value"] = [o[2] for o in out]
+    df["_vupside"] = [o[3] for o in out]
+    df["_vwhy"] = [o[4] for o in out]
+    return df
+
+
+def _vcell(r):
+    lbl, ratio = r.Valuation, r._vratio
+    cls = {"Undervalued": "vu", "Fair": "vf", "Overvalued": "vo"}.get(lbl, "vn")
+    sub = (f"<small>Fair ≈ ₹{r['Fair value']:,.0f} ({r._vupside*100:+.0f}%)</small>"
+           if r["Fair value"] == r["Fair value"] and r["Fair value"] else "")
+    v = "" if ratio is None or ratio != ratio else f"{ratio:.4f}"
+    return f'<td class="val {cls}" data-v="{v}"><b>{lbl}</b>{sub}</td>'
+
+
 # ---------------- build ----------------
 def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, mem: dict = None,
           extra=None, watch=None, core=None, targets=None) -> pd.DataFrame:
@@ -274,6 +352,8 @@ def build(data, cons: pd.DataFrame, near_low: pd.DataFrame, sup: pd.DataFrame, m
             "_fwhy": fwhy, "_twhy": twhy,
         })
     df = pd.DataFrame(rows)
+    if not df.empty:
+        df = add_valuation(df)
     if df.empty:
         return df
     return df.sort_values("Score", ascending=False).reset_index(drop=True)
@@ -305,6 +385,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
         return f"""<tr data-s="{r.Symbol}" data-q="{(r.Company + ' ' + r.Symbol).lower()}" data-ltp="{r.LTP}" data-low="{r._dlow}">
 <td data-v="{r.Company}"><button class="star" data-s="{r.Symbol}" title="Add to My stocks">☆</button><a href="#{r.Symbol}">{r.Company}</a><div class="sym">{r.Symbol} · {r.Segment}</div></td>
 <td class="n" data-v="{r.LTP}"><b>{r.LTP:,.2f}</b></td>
+{_vcell(r)}
 <td data-v="{r._tier[0]}"><span class="ix ix{r._tier[0]}">{r._tier[1]}</span></td>
 <td><a class="tv" href="{tv_url(r.Symbol)}" target="_blank" rel="noopener">📈 Chart</a></td>
 <td class="n" data-v="{r.Score}"><b>{r.Score}</b>/100</td><td data-v="{r.Score}">{_chip(r.Label)}</td>
@@ -312,7 +393,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
 {_pc(r['1D'])}{_pc(r['1W'])}{_pc(r['1M'])}{_pc(r['3M'])}{_pc(r['6M'])}{_pc(r['1Y'])}{_pc(r['From 52W high'])}
 </tr>"""
 
-    cols = [("Company", "t"), ("LTP ₹", "n"), ("Index", "n"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"),
+    cols = [("Company", "t"), ("LTP ₹", "n"), ("Valuation", "n"), ("Index", "n"), ("Chart", ""), ("Score", "n"), ("Label", "n"), ("Fund.", "n"),
             ("Tech.", "n"), ("1D", "n"), ("1W", "n"), ("1M", "n"), ("3M", "n"), ("6M", "n"), ("1Y", "n"),
             ("From 52W high", "n")]
     head = "<thead><tr>" + "".join(
@@ -360,12 +441,13 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
     univ = "".join(srow(r) for _, r in df.iterrows())
     tab_panels.append(f'<table id="univ" hidden><tbody>{univ}</tbody></table>')
     sort_opts = "".join(f'<option value="{v}">{t}</option>' for v, t in [
-        ("4:d", "Score: high → low"), ("4:a", "Score: low → high"),
-        ("14:a", "Biggest fall from 52W high"), ("10:a", "1M: biggest fall"), ("10:d", "1M: biggest gain"),
-        ("9:a", "1W: biggest fall"), ("8:a", "1D: biggest fall"), ("8:d", "1D: biggest gain"),
-        ("11:a", "3M: biggest fall"), ("13:a", "1Y: biggest fall"), ("13:d", "1Y: biggest gain"),
-        ("6:d", "Fundamentals: high → low"), ("7:d", "Technicals: high → low"),
-        ("2:a", "Index: Nifty 50 first"), ("1:d", "Price: high → low"), ("1:a", "Price: low → high"),
+        ("5:d", "Score: high → low"), ("5:a", "Score: low → high"),
+        ("2:a", "Most undervalued first"), ("2:d", "Most overvalued first"),
+        ("15:a", "Biggest fall from 52W high"), ("11:a", "1M: biggest fall"), ("11:d", "1M: biggest gain"),
+        ("10:a", "1W: biggest fall"), ("9:a", "1D: biggest fall"), ("9:d", "1D: biggest gain"),
+        ("12:a", "3M: biggest fall"), ("14:a", "1Y: biggest fall"), ("14:d", "1Y: biggest gain"),
+        ("7:d", "Fundamentals: high → low"), ("8:d", "Technicals: high → low"),
+        ("3:a", "Index: Nifty 50 first"), ("1:d", "Price: high → low"), ("1:a", "Price: low → high"),
         ("0:a", "Company A → Z")])
     summary_html = (f'<script>const WATCH_DEFAULT={_json.dumps(watch_syms)};'
                     f'const TGT_DEFAULT={_json.dumps({r.Symbol: r._targets for _, r in df.iterrows() if r._targets})};</script>'
@@ -399,6 +481,9 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
                "Not at a support level today")
         tags = " · ".join(x for x in [sup, "Near 52-week low" if r['Near 52W low'] else ""] if x)
         overall = [(k, r[k]) for k in ["1D", "1W", "1M", "3M", "6M", "1Y"]]
+        vw = "".join(f"<li><b>{k}:</b> {v}</li>" for k, v in (r._vwhy or {}).items())
+        fv = (f" · fair value ≈ ₹{r['Fair value']:,.0f} ({r._vupside*100:+.0f}%)"
+              if r["Fair value"] == r["Fair value"] and r["Fair value"] else "")
         cards.append(f"""
 <div class="card" id="{r.Symbol}">
  <div class="head"><div><h3>{r.Company}</h3><div class="sym">{r.Symbol} · {r.Segment} · ₹{r.LTP:,.2f}</div></div>
@@ -409,6 +494,7 @@ def html(df: pd.DataFrame, now: dt.datetime) -> str:
   <div><h4>Fundamentals {r.Fundamental}/50</h4><ul>{f}</ul></div>
   <div><h4>Technicals {r.Technical}/50</h4><ul>{t}</ul></div>
  </div>
+ <h4>Valuation: {r.Valuation}{fv}</h4><ul>{vw}</ul>
  <h4>Performance</h4>
  {pills("Overall", overall)}
  {pills("Day-wise", r._days)}
@@ -476,6 +562,8 @@ ul{{margin:0;padding-left:18px;font-size:13px;line-height:1.6}}
 .mbox input{{width:130px;font-size:16px;padding:8px;border:1px solid #ccc;border-radius:8px}}
 .mbtn{{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}} .mbtn button{{border:0;border-radius:8px;padding:9px 14px;font-size:14px;background:#eee;cursor:pointer}}
 .mbtn .pri{{background:#14213d;color:#fff}}
+.val{{white-space:nowrap;font-size:12px;line-height:1.25}} .val small{{display:block;font-size:10.5px;font-weight:400}}
+.val.vu{{background:#dcf5e3;color:#126b34}} .val.vo{{background:#fde2e1;color:#9b1c1c}} .val.vf{{color:#444}} .val.vn{{color:#999}}
 .ix{{font-size:11px;font-weight:600;padding:2px 7px;border-radius:9px;white-space:nowrap}}
 .ix0{{background:#dbe7ff;color:#1d3f8f}} .ix1{{background:#e5dcff;color:#4b2a8f}}
 .ix2{{background:#d9f2ef;color:#0f5f56}} .ix3{{background:#eceff3;color:#3b4554}} .ix9{{background:#fff;color:#888;border:1px solid #ddd}}
@@ -503,7 +591,9 @@ th.asc i:after{{content:"▲"}} th.desc i:after{{content:"▼"}}
 {summary_html}
 <p class="disc"><b>How the score works:</b> Fundamentals (50) = ROE, debt/equity, profit growth, sales growth, profit margin.
 Technicals (50) = support held, how often the level held before, RSI, volume on the day, position vs 200-day average.
-70+ Strong setup · 50–69 Watch · below 50 Weak. Data: NSE index lists, Yahoo Finance.</p>
+70+ Strong setup · 50–69 Watch · below 50 Weak.
+<b>Valuation:</b> PE and price-to-book compared with the median of the same industry in the Nifty 500 (or the sector if the industry has fewer than 5 companies).
+20%+ cheaper than peers = Undervalued, 25%+ costlier = Overvalued. "Fair ≈" is the price at peer-average multiples — a rough guide only. Data: NSE index lists, Yahoo Finance.</p>
 {''.join(cards)}
 <p class="disc"><b>Disclaimer:</b> {DISCLAIMER}</p>
 </div>
@@ -520,7 +610,7 @@ function sortTable(tbl,c,dir){{
  [...tbl.tHead.rows[0].cells].forEach(h=>h.classList.remove('asc','desc'));
  th.classList.add(dir==='a'?'asc':'desc');
 }}
-let SORT=[4,'d'];
+let SORT=[5,'d'];
 function sget(k,d){{let v=null;try{{v=localStorage.getItem(k)}}catch(e){{}}
  if(v==null){{const m=document.cookie.match(new RegExp('(?:^|; )'+k+'=([^;]*)'));if(m)v=decodeURIComponent(m[1]);}}
  try{{return v==null?d:JSON.parse(v)}}catch(e){{return d}}}}
@@ -587,6 +677,6 @@ document.getElementById('sortsel').onchange=e=>{{const [c,d]=e.target.value.spli
 document.querySelectorAll('.tab,.stab').forEach(b=>b.onclick=()=>{{lastTab=b.dataset.t;document.getElementById('q').value='';show(b.dataset.t);}});
 UNIV.forEach(r=>BYSYM[r.dataset.s]=r);
 document.querySelectorAll('.panel[data-syms]').forEach(p=>{{const rows=JSON.parse(p.dataset.syms).map(s=>BYSYM[s]).filter(Boolean);
- if(rows.length)fill(p.id,rows); else p.querySelector('tbody').innerHTML='<tr><td colspan="15">'+p.dataset.empty+'</td></tr>';}});
-bindStars(document);renderMy();sortAll(4,'d');paintStars();storeCheck();
+ if(rows.length)fill(p.id,rows); else p.querySelector('tbody').innerHTML='<tr><td colspan="16">'+p.dataset.empty+'</td></tr>';}});
+bindStars(document);renderMy();sortAll(5,'d');paintStars();storeCheck();
 </script></body></html>"""
