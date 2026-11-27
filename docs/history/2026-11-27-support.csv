@@ -1,0 +1,65 @@
+Company,Symbol,Segment,LTP,Day low,Support,Type,Times held,Last held,% from support,Day change %,Status
+Jio Financial Services Ltd.,JIOFIN,Nifty 100,222.6,222.1,224.81,Swing-low zone,3,2026-09-16,-0.98,-1.94,Holding
+Life Insurance Corporation of India,LICI,Midcap 150,405.4,404.15,409.09,200-day avg,-,-,-0.9,-1.12,Holding
+Voltas Ltd.,VOLTAS,Midcap 150,1186.8,1173.0,1196.47,Swing-low zone,3,2026-06-02,-0.81,-2.36,Holding
+Dabur India Ltd.,DABUR,Midcap 150,412.75,411.0,416.03,Swing-low zone,2,2026-06-24,-0.79,-1.37,Holding
+Schaeffler India Ltd.,SCHAEFFLER,Midcap 150,3658.9,3607.0,3687.2,Swing-low zone,4,2026-04-07,-0.77,-1.16,Holding
+Adani Enterprises Ltd.,ADANIENT,Nifty 100,2640.4,2625.0,2656.87,200-day avg,-,-,-0.62,-0.74,Holding
+Hyundai Motor India Ltd.,HYUNDAI,Nifty 100,2006.0,2002.1,2015.46,200-day avg,-,-,-0.47,-4.67,Holding
+Canara Bank,CANBK,Nifty 100,131.11,130.83,131.48,200-day avg,-,-,-0.28,-0.97,Holding
+Max Financial Services Ltd.,MFSL,Midcap 150,1425.0,1416.1,1428.6,Swing-low zone,2,2026-09-16,-0.25,-1.97,Holding
+L&T Finance Ltd.,LTF,Midcap 150,276.4,275.05,277.07,Swing-low zone,2,2026-04-30,-0.24,-2.33,Holding
+Infosys Ltd.,INFY,Nifty 100,1151.3,1151.3,1151.7,Swing-low zone,2,2026-05-29,-0.03,-2.68,Holding
+Tata Consultancy Services Ltd.,TCS,Nifty 100,2572.5,2563.1,2573.15,Swing-low zone,2,2026-02-24,-0.03,-2.57,Holding
+Havells India Ltd.,HAVELLS,Midcap 150,1142.4,1135.6,1141.85,Swing-low zone,2,2026-07-17,0.05,-3.27,Holding
+Indian Oil Corporation Ltd.,IOC,Nifty 100,144.21,143.2,144.14,200-day avg,-,-,0.05,-0.15,Holding
+LTM Ltd.,LTM,Nifty 100,4320.0,4303.0,4317.44,200-day avg,-,-,0.06,-1.97,Holding
+Varun Beverages Ltd.,VBL,Nifty 100,424.9,422.05,424.5,Swing-low zone,2,2026-07-28,0.09,-0.82,Holding
+HDFC Life Insurance Company Ltd.,HDFCLIFE,Nifty 100,588.45,585.4,587.6,200-day avg,-,-,0.15,-1.0,Holding
+Britannia Industries Ltd.,BRITANNIA,Nifty 100,5065.0,5045.3,5055.25,Swing-low zone,2,2026-06-30,0.19,-2.31,Holding
+Bajaj Finserv Ltd.,BAJAJFINSV,Nifty 100,1849.0,1842.3,1844.65,200-day avg,-,-,0.24,-1.96,Holding
+Hindustan Unilever Ltd.,HINDUNILVR,Nifty 100,2117.2,2114.8,2111.64,200-day avg,-,-,0.26,-0.64,Holding
+Endurance Technologies Ltd.,ENDURANCE,Midcap 150,2587.4,2561.0,2579.67,200-day avg,-,-,0.3,-4.06,Holding
+GMR Airports Ltd.,GMRAIRPORT,Midcap 150,99.26,98.61,98.89,200-day avg,-,-,0.38,-1.92,Holding
+Shriram Finance Ltd.,SHRIRAMFIN,Nifty 100,923.5,918.25,919.12,Swing-low zone,2,2026-10-08,0.48,-3.99,Holding
+UPL Ltd.,UPL,Midcap 150,564.4,561.3,561.63,Swing-low zone,4,2026-09-02,0.49,-0.11,Holding
+Linde India Ltd.,LINDEINDIA,Midcap 150,6983.0,6932.0,6948.17,Swing-low zone,3,2026-07-08,0.5,-0.22,Holding
+ICICI Lombard General Insurance Company Ltd.,ICICIGI,Midcap 150,1738.5,1731.2,1729.23,Swing-low zone,3,2026-07-01,0.54,-0.09,Holding
+Tata Capital Ltd.,TATACAP,Nifty 100,340.1,339.2,338.17,Swing-low zone,3,2026-11-18,0.57,-2.91,Holding
+Max Healthcare Institute Ltd.,MAXHEALTH,Nifty 100,1071.3,1066.15,1064.95,Swing-low zone,2,2026-07-24,0.6,-0.92,Holding
+Bajaj Auto Ltd.,BAJAJ-AUTO,Nifty 100,10485.0,10465.0,10400.44,200-day avg,-,-,0.81,-3.36,Holding
+Hexaware Technologies Ltd.,HEXT,Midcap 150,498.9,497.0,494.88,Swing-low zone,2,2026-11-02,0.81,-0.65,Holding
+Alkem Laboratories Ltd.,ALKEM,Midcap 150,5130.0,5074.0,5086.88,Swing-low zone,4,2026-10-01,0.85,-0.51,Holding
+Asian Paints Ltd.,ASIANPAINT,Nifty 100,2532.6,2508.3,2509.48,200-day avg,-,-,0.92,-0.41,Holding
+Aster DM Quality Care Ltd.,ASTERDM,Midcap 150,756.85,754.45,749.1,Swing-low zone,2,2026-08-24,1.03,-1.49,Holding
+NTPC Ltd.,NTPC,Nifty 100,319.75,317.35,316.27,Swing-low zone,2,2025-12-18,1.1,-0.16,Holding
+Piramal Finance Ltd.,PIRAMALFIN,Midcap 150,1937.6,1932.1,1916.5,Swing-low zone,2,2026-10-09,1.1,-1.7,Holding
+Bharat Petroleum Corporation Ltd.,BPCL,Nifty 100,308.55,304.85,304.9,Swing-low zone,2,2026-08-19,1.2,0.29,Holding
+ITC Ltd.,ITC,Nifty 100,304.7,303.65,301.07,Swing-low zone,3,2026-05-12,1.21,-0.75,Holding
+NHPC Ltd.,NHPC,Midcap 150,75.65,75.65,74.67,Swing-low zone,6,2026-09-17,1.32,-0.33,Holding
+ICICI Prudential Asset Management Company Ltd.,ICICIAMC,Midcap 150,2975.0,2947.0,2934.85,Swing-low zone,2,2026-09-07,1.37,0.11,Holding
+Nippon Life India Asset Management Ltd.,NAM-INDIA,Midcap 150,1047.0,1036.0,1032.15,Swing-low zone,2,2026-10-01,1.44,-0.29,Holding
+Hindustan Petroleum Corporation Ltd.,HINDPETRO,Midcap 150,386.0,380.05,380.38,200-day avg,-,-,1.48,0.09,Holding
+Indus Towers Ltd.,INDUSTOWER,Midcap 150,377.65,376.2,372.15,Swing-low zone,3,2026-10-29,1.48,-0.36,Holding
+Oil India Ltd.,OIL,Midcap 150,433.45,426.65,426.78,Swing-low zone,2,2026-11-05,1.56,1.49,Holding
+Tata Communications Ltd.,TATACOMM,Midcap 150,1707.3,1695.1,1680.5,Swing-low zone,2,2026-07-22,1.59,0.6,Holding
+SBI Life Insurance Company Ltd.,SBILIFE,Nifty 100,1856.0,1830.2,1826.24,200-day avg,-,-,1.63,0.74,Holding
+J.K. Cement Ltd.,JKCEMENT,Midcap 150,5470.3,5416.7,5380.67,Swing-low zone,3,2026-01-01,1.67,0.12,Holding
+Indian Renewable Energy Development Agency Ltd.,IREDA,Midcap 150,125.59,124.17,123.38,Swing-low zone,2,2026-05-18,1.8,-1.11,Holding
+Grasim Industries Ltd.,GRASIM,Nifty 100,3124.2,3110.0,3066.15,Swing-low zone,2,2026-07-16,1.89,-1.72,Holding
+Fertilisers and Chemicals Travancore Ltd.,FACT,Midcap 150,788.5,773.0,773.72,Swing-low zone,3,2026-08-20,1.91,0.61,Holding
+Jindal Stainless Ltd.,JSL,Midcap 150,719.0,708.0,705.35,Swing-low zone,2,2026-10-13,1.94,1.79,Holding
+Bharti Hexacom Ltd.,BHARTIHEXA,Midcap 150,1555.2,1535.0,1525.05,Swing-low zone,2,2026-03-02,1.98,1.25,Holding
+Berger Paints India Ltd.,BERGEPAINT,Midcap 150,466.85,458.0,456.88,Swing-low zone,2,2026-10-28,2.18,1.57,Holding
+Ashok Leyland Ltd.,ASHOKLEY,Midcap 150,151.42,149.21,148.17,Swing-low zone,2,2026-07-24,2.19,-3.03,Holding
+AU Small Finance Bank Ltd.,AUBANK,Midcap 150,984.85,972.5,962.22,Swing-low zone,3,2026-07-23,2.35,0.29,Holding
+Blue Star Ltd.,BLUESTARCO,Midcap 150,1735.0,1715.2,1694.95,Swing-low zone,2,2025-12-31,2.36,-2.54,Holding
+Indian Railway Catering And Tourism Corporation Ltd.,IRCTC,Midcap 150,458.65,452.8,446.65,Swing-low zone,2,2026-10-01,2.69,0.98,Holding
+Balkrishna Industries Ltd.,BALKRISIND,Midcap 150,2360.5,2327.8,2293.4,Swing-low zone,3,2025-12-29,2.93,1.4,Holding
+Bharat Electronics Ltd.,BEL,Nifty 100,411.45,402.5,399.56,Swing-low zone,4,2026-09-02,2.98,1.72,Holding
+GE Vernova T&D India Ltd.,GVT&D,Midcap 150,4263.0,4180.0,4130.3,Swing-low zone,2,2026-09-29,3.21,2.48,Holding
+Ipca Laboratories Ltd.,IPCALAB,Midcap 150,1782.9,1458.4,1709.8,200-day avg,-,-,4.28,-0.97,Holding
+Adani Energy Solutions Ltd.,ADANIENSOL,Nifty 100,1337.0,1330.6,1357.02,200-day avg,-,-,-1.48,-3.26,Broke today
+Tata Motors Ltd.,TMCV,Nifty 100,424.95,421.0,429.87,200-day avg,-,-,-1.15,-1.4,Broke today
+Colgate Palmolive (India) Ltd.,COLPAL,Midcap 150,1770.0,1765.0,1789.27,Swing-low zone,3,2026-09-11,-1.08,-1.67,Broke today
+Godrej Properties Ltd.,GODREJPROP,Midcap 150,1943.0,1932.3,1964.07,Swing-low zone,4,2026-08-19,-1.07,-3.06,Broke today
